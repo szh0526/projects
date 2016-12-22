@@ -1,0 +1,10 @@
+# ignore packages installed by npm
+node_modules
+credentials.js
+.vscode
+*.iml
+*.idea
+*.log
+*~
+# put any other files you don't want to check in here,
+# such as .DS_Store (OSX), *.bak, etc.

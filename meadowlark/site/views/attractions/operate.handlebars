@@ -1,0 +1,85 @@
+<div class="formContainer" style="margin-top: 30px;">
+    {{!异步 保存数据库}}
+    <form class="form-horizontal attractionForm" role="form" method="POST"
+          {{#if id}}
+          action="/api/attraction/update?form=attractionForm"
+          {{else}}
+          action="/api/attraction/insert?form=attractionForm"
+          {{/if}}>
+        <div class="form-group">
+            <label for="fieldName" class="col-sm-2 control-label">名称</label>
+
+            <div class="col-sm-4">
+                <input type="text" class="form-control" value="{{name}}"  id="fieldName" name="name">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="fieldName" class="col-sm-2 control-label">描述</label>
+
+            <div class="col-sm-4">
+                <input type="text" class="form-control" value="{{description}}"  id="fieldDescription" name="description">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="fieldName" class="col-sm-2 control-label">经度</label>
+
+            <div class="col-sm-4">
+                <input type="text" class="form-control" value="{{location.lat}}"  id="fieldLat" name="lat">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="fieldName" class="col-sm-2 control-label">纬度</label>
+
+            <div class="col-sm-4">
+                <input type="text" class="form-control" value="{{location.lng}}"  id="fieldLng" name="lng">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="fieldEmail" class="col-sm-2 control-label">邮箱</label>
+
+            <div class="col-sm-4">
+                <input type="email" class="form-control" value="{{history.email}}" id="fieldEmail" name="email">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-4">
+                <button type="submit" class="btn btn-default">保存</button>
+            </div>
+        </div>
+        <input type="hidden" id="fieldId"  value="{{id}}" >
+    </form>
+</div>
+{{#section 'jquery'}}
+    <script>
+        $(document).ready(function(){
+            $('.attractionForm').on('submit', function(evt){
+                evt.preventDefault();
+                var action = $(this).attr('action');
+                var $container = $(this).closest('.formContainer');
+                $.ajax({
+                    url: action,
+                    type: 'POST',
+                    dataType:'json',
+                    data:{
+                        id:$("#fieldId").val(),
+                        name:$("#fieldName").val(),
+                        description:$("#fieldDescription").val(),
+                        lat:$("#fieldLat").val(),
+                        lng:$("#fieldLng").val(),
+                        email:$("#fieldEmail").val()
+                    },
+                    success: function(data){
+                        if(data.success){
+                            $container.html('<h2>ajax请求成功!</h2>');
+                        }else{
+                            $container.html(data.msg);
+                        }
+                    },
+                    error: function(){
+                        $container.html('请求失败！');
+                    }
+                });
+            });
+        });
+    </script>
+{{/section}}

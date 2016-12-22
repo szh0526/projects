@@ -1,0 +1,65 @@
+<h2 class="sub-header">旅行列表</h2>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>编号</th>
+            <th>名称</td>
+            <th>经度</th>
+            <th>纬度</th>
+            <th>日期</th>
+            <th>邮箱</th>
+            <th>描述</th>
+            <th>审核状态</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each attractions}}
+        <tr>
+            <td>{{@index}}</td>
+            <td>{{name}}</td>
+            <td>{{location.lat}}</td>
+            <td>{{location.lng}}</td>
+            <td>{{history.date}}</td>
+            <td>{{history.email}}</td>
+            <td>{{description}}</td>
+            <td>{{approved}}</td>
+            <td>
+                <div class="col-sm-offset-2">
+                    <a href="operate/{{id}}" id="btnEdit" class="btn btn-default">编辑</a>
+                    <button type="button" g-delete class="btn btn-default" data-id="{{id}}">删除</button>
+                </div>
+            </td>
+        </tr>
+        {{/each}}
+        </tbody>
+    </table>
+</div>
+{{#section 'jquery'}}
+    <script>
+        $(document).ready(function(){
+            $('[g-delete]').on('click', function(e){
+                if(confirm("确定删除吗?")){
+                    var action = "/api/attraction/delete/" + $(this).data("id");
+                    $.ajax({
+                        url: action,
+                        type: 'POST',
+                        dataType:'json',
+                        success: function(data){
+                            if(data.success){
+                                alert(data.msg);
+                                window.location.href = "/attractions/search";
+                            }else{
+                                alert(data.msg);
+                            }
+                        },
+                        error: function(){
+                            alert("请求失败");
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+{{/section}}
