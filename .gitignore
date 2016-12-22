@@ -1,6 +1,5 @@
 # ignore packages installed by npm
 node_modules
-credentials.js
 .vscode
 *.iml
 *.idea
