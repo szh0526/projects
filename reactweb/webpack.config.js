@@ -33,10 +33,10 @@ let config = {
     entry: {
         /*index: APP_PATH*/
         // 第三方包
-        vendor: [
+        /*vendor: [
             'react',
             'react-dom'
-        ]
+        ]*/
     },
     /**
      * output为打包后生成的文件名及路径 合并以后的js会命名为bundle.js
@@ -117,8 +117,8 @@ let config = {
              * preloader 会在其他 loader 前应用
              */
             /*        ,preLoaders:[{
-                        test: /\.js$/, 
-                        loader: "eslint-loader", 
+                        test: /\.js$/,
+                        loader: "eslint-loader",
                         exclude: /node_modules/
                     }]*/
     },
@@ -159,7 +159,7 @@ let config = {
             , new webpack.HotModuleReplacementPlugin()
         ]
         /**
-         * 检查lint Es6 和 jsx 的 javascript 
+         * 检查lint Es6 和 jsx 的 javascript
          */
         ,
     eslint: {

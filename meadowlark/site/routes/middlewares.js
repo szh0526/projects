@@ -35,7 +35,7 @@ exports.defaultSettingsHandler = (app) => {
     /**
      * 设置handlebars 视图引擎 main主模板 服务器端模板在WEB端隐藏实现细节，支持模板缓存
      */
-    var handlebars = require('express-handlebars').create({
+    var handlebars = require('express3-handlebars').create({
         defaultLayout: 'main',
         helpers: {
             section(name, options){
