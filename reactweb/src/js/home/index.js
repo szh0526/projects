@@ -5,8 +5,9 @@ import { render } from 'react-dom';
 import Greeter from './Greeter';
 import $ from 'jquery';
 
-const myPromise = Promise.resolve(42);
+const myPromise = Promise.resolve(43);
 myPromise.then((number) => {
+    //$.error('arguments is not number');
     console.log(number)
     $('body').append('<p>promise结果是：' + number + '</p>');
 })

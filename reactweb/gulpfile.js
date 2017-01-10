@@ -1,3 +1,7 @@
+/**
+ * gulp + webpack的基本玩法就是 配置一个基础的webpackConfig，gulp的task里，根据需要，动态微调基本的webpackConfig。
+ */
+
 let gulp = require('gulp');
 let less = require('gulp-less');
 let babel = require('gulp-babel');
@@ -25,7 +29,7 @@ const paths = {
  * 一个 gulpfile 只是一个 Node 程序，在 gulpfile 中可以使用任何 npm 中的模块或者其他 Node.js 程序
  */
 function clean() {
-    // del 也可以和 `gulp.src` 一样可以基于模式匹配的文件路径定义方式 
+    // del 也可以和 `gulp.src` 一样可以基于模式匹配的文件路径定义方式
     return del(['assets']);
 }
 
@@ -68,7 +72,7 @@ function images() {
 
 /**
  * 监控文件，当文件改变过后做对应的任务
- * @param globs [String | Array] 需要监控的文件 globs 
+ * @param globs [String | Array] 需要监控的文件 globs
  * @param opts [Object] https://github.com/paulmillr/chokidar 的配置参数，
  * @return {[type]} [description]
  */
@@ -178,7 +182,7 @@ function webpackDevelopment(done) {
 }
 
 /**
- * 启动 webpack 开发环境服务 
+ * 启动 webpack 开发环境服务
  */
 function webpackDevelopmentServer(done) {
     new WebpackDevServer(devCompiler, {
@@ -236,7 +240,7 @@ gulp.task("default", gulp.series(
     watch
 ));
 
-/** 
+/**
  * production build task
  */
 gulp.task("build", gulp.series(
