@@ -21,32 +21,36 @@
  * 快速增量构建，监听变动并自动打包 webpack –watch
  * progress 显示打包过程中的进度，colors打包信息带有颜色显示 webpack –progress –colors
  */
-let webpack = require('webpack');
-let path = require('path');
-let HtmlwebpackPlugin = require('html-webpack-plugin');
-let ExtractTextPlugin = require("extract-text-webpack-plugin");
-let glob = require('glob');
-const ROOT_PATH = path.resolve(__dirname);
-const APP_PATH = path.resolve(ROOT_PATH, 'src');
-const BUILD_PATH = path.resolve(ROOT_PATH, 'dist');
-const SERVER_PORT = 8089;
+let HtmlWebpackPlugin = require('html-webpack-plugin')
+    ,ExtractTextPlugin = require("extract-text-webpack-plugin")
+    ,CompressionWebpackPlugin = require('compression-webpack-plugin')
+    ,webpack = require('webpack')
+    ,fs = require('fs')
+    ,path = require('path')
+    ,glob = require('glob');
+const ROOT_PATH = path.resolve(__dirname)
+    ,APP_PATH = path.resolve(ROOT_PATH, 'src')
+    ,BUILD_PATH = path.resolve(ROOT_PATH, 'dist')
+    ,DLL_PATH = path.join(ROOT_PATH, '/dist/src/common/dll')
+    ,SERVER_PORT = 8089;
 
 let config = {
-     /**
+    /**
     * 配置生成Source Maps，上线后的devtool要配置为source-map
     * 生成map文件 vendor.min.js.map 方便调试
     * 启动：npm run sourcemap
     * 与HMR不能同时使用
     * 出错的时候，除错工具将直接显示原始代码，而不是转换后的代码
+    * 开发过程中用 devtool 会导致打包后文件大小非常大
+    * 建议在production环境打包的时候关闭 devtool
     */
-    devtool: 'eval-source-map',
+    /*devtool: 'eval-source-map',*/
     /**
      * 默认带个入口文件,在页面启动时，会先执行入口文件js
      * 配置多个入口文件用数组['./src/index.js', './vendor/bootstrap.min.js']
      * 生成多个
      */
     entry: {
-         'dll-user': ['./src/js/dll-user/index.js']
         /*index: APP_PATH*/
         // 第三方包 DLLPlugin 代替
         /*vendor: [
@@ -67,7 +71,7 @@ let config = {
      */
     output: {
         path: BUILD_PATH,
-        filename: '[name].min.js' //'bundle.js' // "[name]-[hash].js"
+        filename: '[name].min.js' //"[name]-[hash].js"
     },
     /**
      * 建本地服务器(热启动,自动刷新浏览器)
@@ -115,7 +119,9 @@ let config = {
                         path.join(process.cwd(), './src')
                     ],
                     exclude:/node_modules/,
-                    loader: 'babel'
+                    //"compact": false 不压缩代码，一般用在测试与生产环境
+                    /*loader:'babel'*/
+                    loader: 'babel?compact=false'
                     /*loader: 'babel-loader!jsx-loader?harmony'*/
                 },
                 /**
@@ -127,8 +133,12 @@ let config = {
                  */
                 {
                     test: /\.css$/,
-                    loader: 'style!css?modules!postcss',
-                    include: APP_PATH
+                    /*loader: 'style!css?modules!postcss'*/
+                    loader: ExtractTextPlugin.extract("style-loader", "css-loader")
+                },
+                {
+                    test: /\.less$/,
+                    loader: ExtractTextPlugin.extract('style-loader', 'css-loader!postcss-loader!less-loader')
                 },
                 {
                     test: /\.json$/,
@@ -168,12 +178,15 @@ let config = {
             * 合并压缩混淆
             * 生产环境构建
             */
-            new webpack.optimize.UglifyJsPlugin({
+            /*new webpack.optimize.UglifyJsPlugin({
+                //去掉注释
+                comments: false,
                 //去除console,debugger
                 compress: {
+                    //忽略警告,要不然会有一大堆的黄色字体出现
                     warnings: false,
-                    drop_debugger: true,
-                    drop_console: true
+                    drop_debugger: false, //生产用true
+                    drop_console: false //生产用true
                 },
                 //可以在线上生成soucemap文件，便于调试，会导致编译过程变慢
                 sourceMap: true,
@@ -182,28 +195,38 @@ let config = {
                     except: ['$', 'exports', 'require']
                 },
                 minimize: true
-            }),
+            }),*/
             /**
-            * 提取多个入口文件中的公共模块到vendor.min.js中
+            * 提取多个入口文件中的公共模块到vendor.min.js中(vendor: ['react','react-dom'])
             * CommonsChunkPlugin 可以将相同的模块提取出来单独打包，进而减小 rebuild 时的性能消耗 如 ['home','index']
-            * new webpack.optimize.CommonsChunkPlugin('vendor.min.js', ['home','index'])
             * new webpack.optimize.CommonsChunkPlugin("admin-commons.js", ["ap1", "ap2"]),
             * new webpack.optimize.CommonsChunkPlugin("commons.js", ["p1", "p2", "admin-commons.js"])
+            * 若引用dll的vendor.dll.js则不需要CommonsChunkPlugin
             */
             /*new webpack.optimize.CommonsChunkPlugin('vendor', 'vendor.min.js'),*/
             // 备案
             new webpack.BannerPlugin('(招聘前端) => {QQ：340636803}'),
-            // 生成最终的Html5文件,自动引用了你打包后的JS文件
-            new HtmlwebpackPlugin({
-                title: 'webpack-sample-project',
-                template: __dirname + "/src/html/index.html"
-            }),
-            //可以定义编译时的全局变量，有很多库（React, Vue等）会根据 NODE_ENV 这个变量来判断当前环境
+            /**
+            * 可以定义编译时的全局变量，有很多库（React, Vue等）会根据 NODE_ENV 这个变量来判断当前环境
+            * 适用生产
+            */
             new webpack.DefinePlugin({
                 "process.env": {
-                    NODE_ENV: JSON.stringify("development")  //production
+                    NODE_ENV: JSON.stringify("production")  //development
                 }
             }),
+            /**
+            * 开启 gzip 压缩 js 与 css
+            * 构建后生产对应入口文件 *.entry.min.js.gz
+            * 适用生产
+            */
+            /*new CompressionWebpackPlugin({
+                asset: "[path].gz[query]",
+                algorithm: "gzip",
+                test: /\.js$|\.css$|\.html$/,
+                threshold: 10240,
+                minRatio: 0.8
+            }),*/
             /**
             * 自动刷新和热加载 动态的更新局部模块代码，而不需要刷新整个页面
             * 用sourcemap时不能使用HMR
@@ -214,6 +237,7 @@ let config = {
             * –inline 是刷新后的代码自动注入到打包后的文件中(当源文件改变时会自动刷新页面)
             * -d 是debug模式，输入一个source-map，并且可以看到每一个打包的文件
             * -p 是对代码进行压缩
+            * 适用开发
             */
             new webpack.HotModuleReplacementPlugin(),
             //跳过编译时出错的代码并记录，使编译后运行时的包不会发生错误。
@@ -226,10 +250,13 @@ let config = {
                 /**
                 * 在这里引入 manifest 文件
                 */
-                manifest: require('./dist/vendor-manifest.json')
+                manifest: require(path.join(DLL_PATH + '/vendor-manifest.json'))
             }),
-            //可以将所有css文件打包到独立css文件中
-            new ExtractTextPlugin("css/[name]-[hash].css"),
+            /**
+            * 该插件会提取entry chunk中所有的 require('*.css') ，分离出独立的css文件。免得以后只修改 css 导致 浏览器端 js 的缓存也失效了。
+            * 同时可以避免css在js中导致闪屏
+            */
+            new ExtractTextPlugin("[name].css"),
             //合并请求 限制最大chunk数
             new webpack.optimize.LimitChunkCountPlugin({maxChunks: 15}),
             //合并请求 限制最小chunk数
@@ -251,7 +278,7 @@ let config = {
         //绝对路径
         /*root: path.resolve('node_modules'),*/
         //requrie的模块自动补全后缀
-        extensions: ['', '.js', '.jsx'],
+        extensions: ['', '.js', '.jsx', '.json', '.css', '.less' , '.sass'],
         //别名配置 import $ from 'test'
         /*alias: {
            //test:path.resolve(__dirname,'test.js'),
@@ -260,20 +287,68 @@ let config = {
 };
 
 /**
- * 使用 glob 动态添加 entry入口index，让配置做到自动映射
+ * 配置自动化
+ * 使用 glob 动态添加 entry入口index，生成一个键值对
+ * key形如 /*.entry,value是入口文件的路径。之后设置给config.entry
+ * 尽量以 glob 的方式匹配文件，避免增加一个业务文件就需要修改配置
  */
-let files = glob.sync('./src/js/*/index.js');
-let newEntries = files.reduce((memo, file) => {
-    var name = /.*\/(.*?)\/index\.js/.exec(file)[1];
-    console.log("chunk目录:" + file);
-    memo[name] = entry(name);
+let entryFiles = glob.sync('./src/**/*.entry.js');
+let newEntries = entryFiles.reduce((memo, filePath) => {
+    let key = filePath.substring(filePath.lastIndexOf(path.sep),filePath.lastIndexOf('.'));
+    console.log("chunk:" + key + " &&&&& file:" + filePath);
+    memo[key] = path.join(ROOT_PATH,filePath);
     return memo;
 }, {});
+/*newEntries['./src/common/dll/vendor.dll'] = path.join(ROOT_PATH,'./src/common/dll/vendor.dll.js');*/
+
+/**
+ * 动态映射入口文件的Html
+ * title : 标题。
+ * filename : 文件的名称
+ * template : 模板的路径
+ * inject :true | ‘head’ | ‘body’ | false 。把所有产出文件注入到给定的 template true,body时js放在body底部，head放head内
+ * favicon : 图标路径。
+ * minify : 配置object来压缩输出。
+ * hash : true | false。如果是true，会给所有包含的script和css添加一个唯一的webpack编译hash值。这对于缓存清除非常有用。
+ * cache : true | false 。如果传入true（默认），只有在文件变化时才 发送（emit）文件。
+ * showErrors : true | false 。如果传入true（默认），错误信息将写入html页面。
+ * chunks : 只允许你添加chunks 。（例如：只有单元测试块 ）
+ * chunksSortMode : 在chunk被插入到html之前，你可以控制它们的排序。允许的值 ‘none’ | ‘auto’ | ‘dependency’ | {function} 默认为‘auto’.
+ * excludeChunks : 允许你跳过一些chunks（例如，不要单元测试的 chunk）.
+ * xhtml : 用于生成的HTML文件的标题。
+ * title : true | false。如果是true，把link标签渲染为自闭合标签，XHTML要这么干的。默认false。
+ */
+let htmlWebpackPlugins = entryFiles.map((filePath) => {
+    if(filePath.indexOf('common')  > -1) return;
+    let name = filePath.substring(filePath.lastIndexOf("/") + 1,filePath.length - 9);
+    let chunks = [
+        './src/common/kit/util.entry'
+        ,filePath.substring(0,filePath.lastIndexOf("."))
+    ]
+    console.log("HtmlWebpackPlugin:" + name + " &&&&& file:" + filePath);
+    var htmlWebpackPlugin = new HtmlWebpackPlugin({
+        title:name,
+        filename: `./${name}.html`,
+        template: `./src/${name}/${name}.html`,
+        inject: true,
+        //minify: {
+            //  removeComments: true,        //去注释
+            //  collapseWhitespace: true,    //压缩空格
+            //  removeAttributeQuotes: true  //去除属性引用
+            // more options:
+            // https://github.com/kangax/html-minifier#options-quick-reference
+        //},
+        hash: true,
+        chunks: chunks //指定要加入的入口文件
+    });
+    config.plugins.push(htmlWebpackPlugin);
+    return htmlWebpackPlugin;
+});
 
 /**
  * Object.assign 合并对象
  */
-/*config.entry = Object.assign({}, config.entry, newEntries);*/
+config.entry = Object.assign({}, config.entry, newEntries);
 
 /**
  * 获取入口文件
@@ -281,8 +356,9 @@ let newEntries = files.reduce((memo, file) => {
  * @return {[type]}      [description]
  */
 function entry(name) {
-    return './src/js/' + name + '/index.js';
+    return './src/' + name + '/index.js';
 }
+
 
 /**
  * 作一个 node 模块 gulp调用

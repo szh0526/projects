@@ -2,17 +2,16 @@
  * gulp + webpack的基本玩法就是 配置一个基础的webpackConfig，gulp的task里，根据需要，动态微调基本的webpackConfig。
  */
 
-let gulp = require('gulp')
-    ,less = require('gulp-less')
-    ,babel = require('gulp-babel')
-    ,concat = require('gulp-concat')
-    ,uglify = require('gulp-uglify')
-    ,rename = require('gulp-rename')
-    ,changed = require('gulp-changed')
-    ,newer = require('gulp-newer')
-    ,cleanCSS = require('gulp-clean-css')
-    ,tpl2mod = require('gulp-tpl2mod')  //tpl转js https://github.com/itbeihe/component-html-engine-demo
-    ,del = require('del');
+let gulp = require('gulp');
+let less = require('gulp-less');
+let babel = require('gulp-babel');
+let concat = require('gulp-concat');
+let uglify = require('gulp-uglify');
+let rename = require('gulp-rename');
+let changed = require('gulp-changed');
+let newer = require('gulp-newer');
+let cleanCSS = require('gulp-clean-css');
+let del = require('del');
 
 const paths = {
     styles: {
