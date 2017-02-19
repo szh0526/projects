@@ -9,17 +9,16 @@
  * 坑: webpackJsonp is not defined？ 是没有引入CommonsChunkPlugin生成的公共文件
  * 此配置：实现react 和 react-dom 放入全局变量(window.React window.ReactDOM) 生成vendor.dll.js文件
  */
-const path = require('path');
-const webpack = require('webpack');
-const ROOT_PATH = path.resolve(__dirname);
-const BUILD_PATH = path.join(ROOT_PATH, process.env.NODE_ENV === 'production' ? '/bin/src/common/dll' : '/dist/src/common/dll');
+let path = require('path')
+    ,webpack = require('webpack')
+    ,staticCfg = require('./config');
 
 module.exports = {
   entry: {
-    vendor: ['react','react-dom','jquery']
+    vendor: ['react','react-dom','lodash']
   },
   output: {
-    path: BUILD_PATH,
+    path: staticCfg.dllPath,
     filename: '[name].dll.js',
     /**
      * output.library
@@ -41,7 +40,7 @@ module.exports = {
        * 该文件用于后续的业务代码打包
        * [name]的部分由entry的名字替换
        */
-      path: path.join(BUILD_PATH, '[name]-manifest.json'),
+      path: staticCfg.mainfestPath,
       /**
        * name
        * 是 dll 暴露的对象名
@@ -53,7 +52,7 @@ module.exports = {
        * 是解析包路径的上下文，这个要跟接下来配置的
        * 要跟配置的 webpack.config.js中 webpack.DllReferencePlugin 路径保持一致
        */
-      context: ROOT_PATH
+      context: staticCfg.rootPath
     })
   ]
 };

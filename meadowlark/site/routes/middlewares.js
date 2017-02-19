@@ -10,17 +10,17 @@
  * errorhandler app.use(require(errorhandler)()); //为客户端提供栈追踪和错误消息
  * method-override app.use(require(methodoverride)()); //允许浏览器“假装”使用除GET 和POST之外的HTTP 方法。编写API 调试时使用。
  * */
-let credentials = require("../lib/credentials.js");
-let express = require('express');
-let cluster = require('cluster');
-let bodyparser = require('body-parser');
-let cookieparser = require('cookie-parser');
-let expresssession = require('express-session');
-let MongoSessionStore = require('session-mongoose')(require('connect'));
-let cors = require('cors');
-let mongoose = require('mongoose');
-let fs = require('fs');
-let csurf = require('csurf');
+let credentials = require("../lib/credentials.js")
+    ,express = require('express')
+    ,cluster = require('cluster')
+    ,bodyparser = require('body-parser')
+    ,cookieparser = require('cookie-parser')
+    ,expresssession = require('express-session')
+    ,MongoSessionStore = require('session-mongoose')(require('connect'))
+    ,cors = require('cors')
+    ,mongoose = require('mongoose')
+    ,fs = require('fs')
+    ,csurf = require('csurf');
 const getstatic = require('../lib/static.js').map;
 
 
@@ -113,7 +113,7 @@ exports.cookieParserHandler = () => {
  * expresssession中：会话的存储方式使用数据库存储
  */
 exports.expressSessionHandler = () => {
-    var sessionStore = new MongoSessionStore({url: credentials.mongo.connectionString});
+    var sessionStore = new MongoSessionStore({url: credentials.mongo.production.connectionString});
     return expresssession({store: sessionStore});
 };
 

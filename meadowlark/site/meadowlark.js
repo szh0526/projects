@@ -5,23 +5,24 @@ let http = require('http');
 let fs = require('fs');
 let app = express();
 let server = null;//当前node服务
+let rootPath = __dirname;
 
 
 middlewares.defaultSettingsHandler(app);
-app.use(middlewares.staticshHandler(__dirname + '/public'));
-app.use(middlewares.staticshHandler(__dirname + '/lib'));
+app.use(middlewares.staticshHandler(rootPath + '/public'));
+app.use(middlewares.staticshHandler(rootPath + '/lib'));
 app.use("/api",middlewares.allowApiCorsHandler());
 app.use(middlewares.bodyParserHandler());
 app.use(middlewares.cookieParserHandler());
 app.use(middlewares.expressSessionHandler());
 app.use(middlewares.commonHandler(app));
 var routes = require('./routes/routes.js')(app);
-app.use(middlewares.autoViewHandler(__dirname));
+app.use(middlewares.autoViewHandler(rootPath));
 app.use(middlewares.notCatchHandler(server));
 //放在routes之后
 app.use(middlewares.notFoundHandler());
 app.use(middlewares.serverErrHandler());
-middlewares.initMongoDbHandler(app,__dirname);
+middlewares.initMongoDbHandler(app,rootPath);
 
 //mongodb数据库 用户
 
