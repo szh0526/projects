@@ -45,15 +45,8 @@ let getPath = (router) => {
  */
 function getJsonByRouter(router){
     var filepath = getPath(router);
-
-    //如果null则返回error.json
-    if(!filepath){
-        filepath = getPath('error');
-        return fs.readFileSync(filepath,'utf-8');
-    }else{
-        //同步读取
-        return fs.readFileSync(filepath,'utf-8');
-    }
+    //同步读取
+    return fs.readFileSync(filepath,'utf-8');
 }
 
 /**
