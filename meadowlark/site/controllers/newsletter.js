@@ -5,7 +5,7 @@
 let credentials   = require("../lib/credentials.js");
 let emailService  = require('../lib/email.js')(credentials);
 
-exports = {
+module.exports = {
     //把路由整理在一起更清晰
     registerRoutes: (app) => {
         const _self = this;

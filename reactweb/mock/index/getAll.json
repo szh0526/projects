@@ -1,8 +1,9 @@
 {
     "success":true,
     "errCode":"0",
-    "errMsg":null,
+    "errMsg":"请求成功",
     "data":{
-
+        a:1,
+        b:2
     }
 }

@@ -4,15 +4,16 @@
  */
 let gulp = require("gulp")
     ,gutil = require("gulp-util")
-    ,del = require('del')
+    ,webserver=require('gulp-webserver')
     ,webpack = require("webpack")
+    ,_=require('lodash')
+    ,url = require('url')
+    ,del = require('del')
+    ,mockServer = require('./mockServer')
     ,WebpackDevServer = require("webpack-dev-server")
     ,webpackConfig = require("./webpack.config.js")
     ,webpackDllConfig = require("./webpack.dll.config.js")
-    ,staticCfg= require('./config')
-    ,mockServer = require('./mockServer')
-    ,url = require('url')
-    ,_=require('lodash');
+    ,staticCfg= require('./config');
 
 /**
  * webpack配置
@@ -35,6 +36,12 @@ devCompiler = webpack(devConfig);
  * 单个任务测试
  */
 gulp.task("buildserver",webpackDevServer)
+
+/**
+ * 启动web服务器任务
+ */
+gulp.task('webserver', startMockServer);
+
 
 /*
  * default 开发环境 build task
@@ -90,8 +97,6 @@ function clean(){
  * @param  {Function} done [description]
  * @return {[type]}        [description]
  */
-
-
 function webpackProduction(done) {
     devCompiler.run(function(err, stats) {
         if(err) throw new gutil.PluginError("webpack:production", err);
@@ -170,20 +175,13 @@ function webpackDevServer(callback) {
         progress:true,
         // Make connection between webpack-dev-server and its runtime set inline: true
         headers:{"Access-Control-Allow-Origin": "*"},
+        //代理mockServer服务
         proxy:{
             '/api/*': {
-                target: staticCfg.apiHost,
+                target: staticCfg.mockHost,
                 secure: false
             }
         },
-        //拦截ajax请求并处理
-        middleware:function(req,res,next){
-            console.log(req);
-            var urlObj = url.parse(req.url, true),
-                method = req.method,//方法名 post get put del
-                paramObj = urlObj.query;//url参数
-            mockServer(res, urlObj.pathname, paramObj, next);
-        }
         /*
         quiet:true,
         noInfo:true,
@@ -198,6 +196,30 @@ function webpackDevServer(callback) {
 	});
 }
 
+/**
+ * 启动web服务器 处理mock服务
+ * 参考地址:https://www.npmjs.com/package/gulp-webserver
+ */
+function startMockServer(){
+    gulp.src('dist').pipe(
+        webserver({
+            livereload: true,
+            directoryListing: {
+                enable:true,
+                path: 'dist'
+            },
+            host: "localhost",
+            port: 9999,
+            //拦截ajax请求并处理 需要在devserver中配置proxy代理
+            middleware:function(req,res,next){
+                var urlObj = url.parse(req.url, true),
+                    method = req.method,//方法名 post get put del
+                    paramObj = urlObj.query;//url参数
+                mockServer(res, urlObj.pathname, paramObj, next);
+            }
+        })
+    );
+}
 
 /**
  * getWebPackPlugins 根据环境配置webpack插件Plugins

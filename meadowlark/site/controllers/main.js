@@ -4,10 +4,12 @@
 var config = require('../lib/config.js');
 var cluster = require('cluster');
 
-exports = {
+module.exports = {
     //把路由整理在一起更清晰
     registerRoutes: (app) => {
         const _self = this;
+        console.log(this)
+        console.log(_self)
         app.get('/', _self.home);
         app.get('/about/:id/:name', _self.about);
         app.get('/thank-you', _self.thankyou);

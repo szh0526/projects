@@ -6,7 +6,7 @@
 var Customer = require('../models/customer.js');
 var customerViewModel = require('../viewModels/customer.js');
 
-exports = {
+module.exports = {
     //把路由整理在一起更清晰
     registerRoutes: function(app){
         app.get('/customer/:id', this.home);

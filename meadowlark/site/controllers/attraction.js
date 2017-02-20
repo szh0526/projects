@@ -6,7 +6,7 @@
 var Attraction = require('../models/attraction.js');
 var attractionViewModel = require('../viewModels/attraction.js');
 
-exports = {
+module.exports = {
     //把路由整理在一起更清晰
     registerRoutes: (app) => {
         const _self = this;

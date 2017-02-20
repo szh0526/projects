@@ -16,6 +16,8 @@ module.exports ={
     ,fileName: ENV_BOOLEAN ? '[name].min.js' : '[name].js'
     //express 默认3000端口
     ,apiHost: "http://localhost:3000"
+    //mock服务 端口9999
+    ,mockHost: "http://localhost:9999"
     //CDN地址 此路径后面的/必须加 否则devserver启动异常
     ,publicPath: "http://localhost:8089/"
     //项目根路径

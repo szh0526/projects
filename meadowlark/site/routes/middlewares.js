@@ -31,11 +31,10 @@ const getstatic = require('../lib/static.js').map;
 exports.defaultSettingsHandler = (app) => {
     app.set('port', process.env.PORT || 3000);//设置端口号 环境变量process.env.PORT
     app.disable('x-powered-by');//禁用Express 的X-Powered-By 头信息
-
     /**
      * 设置handlebars 视图引擎 main主模板 服务器端模板在WEB端隐藏实现细节，支持模板缓存
      */
-    var handlebars = require('express-handlebars').create({
+    var handlebars = require('express3-handlebars').create({
         defaultLayout: 'main',
         helpers: {
             section(name, options){

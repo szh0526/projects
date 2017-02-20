@@ -1,15 +1,15 @@
 module.exports = {
-    cookieSecret: ' 把你的cookie 秘钥放在这里',
+    cookieSecret: '!@#123qwe',
     email_163:{
-        user:,
-        password:
+        user:"szh6602518a@163.com",
+        password:"340636803a"
     },
     mongo:{
         "production":{
-            connectionString:""
+            connectionString:"mongodb://localhost:27017/?safe=true;w=2;wtimeoutMS=2000"
         },
         "development":{
-            connectionString:""
+            connectionString:"mongodb://localhost:27017/?safe=true;w=2;wtimeoutMS=2000"
         }
     }
 };
