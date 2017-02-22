@@ -9,50 +9,50 @@
  * 坑: webpackJsonp is not defined？ 是没有引入CommonsChunkPlugin生成的公共文件
  * 此配置：实现react 和 react-dom 放入全局变量(window.React window.ReactDOM) 生成vendor.dll.js文件
  */
-let path = require('path')
-    ,webpack = require('webpack')
-    ,staticCfg = require('./config');
+let path = require('path'),
+    webpack = require('webpack'),
+    staticCfg = require('./config');
 
 module.exports = {
-  entry: {
-    vendor: ['react','react-dom','lodash']
-  },
-  output: {
-    path: staticCfg.dllPath,
-    filename: '[name].dll.js',
-    /**
-     * output.library
-     * 将会定义为 window.${output.library}
-     * 在这次的例子中，将会定义为`window.vendor_library`
-     */
-    library: '[name]_library'
-  },
-  plugins: [
-    /**
-    * path 是 manifest.json 文件的输出路径，这个文件会用于后续的业务代码打包；
-    * name 是 dll 暴露的对象名，要跟 output.library 保持一致；
-    * context 是解析包路径的上下文，这个要跟接下来配置的 webpack.config.js 一致。
-    */
-    new webpack.DllPlugin({
-      /**
-       * path
-       * 定义 manifest 文件的输出路径
-       * 该文件用于后续的业务代码打包
-       * [name]的部分由entry的名字替换
-       */
-      path: staticCfg.mainfestPath,
-      /**
-       * name
-       * 是 dll 暴露的对象名
-       * 要跟 output.library 保持一致。
-       */
-      name: '[name]_library',
-      /**
-       * context
-       * 是解析包路径的上下文，这个要跟接下来配置的
-       * 要跟配置的 webpack.config.js中 webpack.DllReferencePlugin 路径保持一致
-       */
-      context: staticCfg.rootPath
-    })
-  ]
+    entry: {
+        vendor: ['react', 'react-dom', 'lodash']
+    },
+    output: {
+        path: staticCfg.dllPath,
+        filename: '[name].dll.js',
+        /**
+         * output.library
+         * 将会定义为 window.${output.library}
+         * 在这次的例子中，将会定义为`window.vendor_library`
+         */
+        library: '[name]_library'
+    },
+    plugins: [
+        /**
+         * path 是 manifest.json 文件的输出路径，这个文件会用于后续的业务代码打包；
+         * name 是 dll 暴露的对象名，要跟 output.library 保持一致；
+         * context 是解析包路径的上下文，这个要跟接下来配置的 webpack.config.js 一致。
+         */
+        new webpack.DllPlugin({
+            /**
+             * path
+             * 定义 manifest 文件的输出路径
+             * 该文件用于后续的业务代码打包
+             * [name]的部分由entry的名字替换
+             */
+            path: staticCfg.mainfestPath,
+            /**
+             * name
+             * 是 dll 暴露的对象名
+             * 要跟 output.library 保持一致。
+             */
+            name: '[name]_library',
+            /**
+             * context
+             * 是解析包路径的上下文，这个要跟接下来配置的
+             * 要跟配置的 webpack.config.js中 webpack.DllReferencePlugin 路径保持一致
+             */
+            context: staticCfg.rootPath
+        })
+    ]
 };

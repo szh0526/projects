@@ -17,25 +17,25 @@
  * 快速增量构建，监听变动并自动打包 webpack –watch
  * 确定不会在生产环境打包多余的代码, 比如 热加载 去除所有注释, 压缩所有可压缩的资源文件. 开启 gzip压缩.
  */
-let HtmlWebpackPlugin = require('html-webpack-plugin')
-    ,ExtractTextPlugin = require("extract-text-webpack-plugin")
-    ,webpack = require('webpack')
-    ,SpritesmithPlugin = require('webpack-spritesmith')
-    ,fs = require('fs')
-    ,path = require('path')
-    ,glob = require('glob')
-    ,staticCfg = require('./config');
+let HtmlWebpackPlugin = require('html-webpack-plugin'),
+    ExtractTextPlugin = require("extract-text-webpack-plugin"),
+    webpack = require('webpack'),
+    SpritesmithPlugin = require('webpack-spritesmith'),
+    fs = require('fs'),
+    path = require('path'),
+    glob = require('glob'),
+    staticCfg = require('./config');
 
 let config = {
     /**
-    * 配置生成Source Maps，上线后的devtool要配置为source-map
-    * 生成map文件 vendor.min.js.map 方便调试
-    * 启动：npm run sourcemap
-    * 与HMR不能同时使用
-    * 出错的时候，除错工具将直接显示原始代码，而不是转换后的代码
-    * 开发过程中用 devtool 会导致打包后文件大小非常大
-    * 建议在production环境打包的时候关闭 devtool
-    */
+     * 配置生成Source Maps，上线后的devtool要配置为source-map
+     * 生成map文件 vendor.min.js.map 方便调试
+     * 启动：npm run sourcemap
+     * 与HMR不能同时使用
+     * 出错的时候，除错工具将直接显示原始代码，而不是转换后的代码
+     * 开发过程中用 devtool 会导致打包后文件大小非常大
+     * 建议在production环境打包的时候关闭 devtool
+     */
     /*devtool: 'eval-source-map',*/
     entry: {},
     /**
@@ -54,12 +54,12 @@ let config = {
      * },
      */
     output: {
-        path: staticCfg.buildPath,
-        publicPath: staticCfg.publicPath,//"http://localhost:8089/dist/",
-        filename:staticCfg.fileName
+        path: staticCfg.contentPath,
+        publicPath: staticCfg.publicPath, //"http://localhost:8089/dist/",
+        filename: staticCfg.fileName
     },
     module: {
-         /**
+        /**
          * 模块和资源的转换器
          * loader处理各种资源使用对应的加载器处理
          * test ：一个匹配loaders所处理的文件的拓展名的正则表达式（必须）
@@ -69,95 +69,94 @@ let config = {
          * loader 可以为string或数组["style", "css"] 或 style!css
          */
         loaders: [
+                /**
+                 * babel编译es6，react的jsx
+                 * exclude来限定 npm 的禁用范围
+                 * include来限定 babel 的使用范围，
+                 * 提交到github时需要把babel模块排除掉
+                 * es7语法分四个阶段分别对应四个插件 babel-preset-stage-0 1 2 3
+                 */
+                {
+                    test: /\.js(x)*$/,
+                    include: [
+                        // 只去解析运行目录下的 src 文件夹
+                        path.join(process.cwd(), './src')
+                    ],
+                    exclude: /node_modules/,
+                    //"compact": false 不压缩代码，一般用在测试与生产环境
+                    /*loader:'babel'*/
+                    loader: 'babel'
+                        /*loader: 'babel-loader!jsx-loader?harmony'*/
+                },
+                /**
+                 * 添加对样式表的处理
+                 * 注：感叹号的作用在于使同一文件能够使用不同类型的loader
+                 * css会和js打包到同一个文件中也可以打包到单独的css文件中
+                 * modules相同的类名不会造成不同组件之间的污染，只对当前组件有效
+                 * 从右向左开始使用，less->转为css字符串->使用style将代码放到页面style标签中。
+                 */
+                {
+                    test: /\.css$/,
+                    /*loader: 'style!css?modules!postcss'*/
+                    loader: ExtractTextPlugin.extract("style-loader", "css-loader")
+                },
+                {
+                    test: /\.less$/,
+                    loader: ExtractTextPlugin.extract('style-loader', 'css-loader!postcss-loader!less-loader')
+                },
+                {
+                    test: /\.json$/,
+                    loader: "json"
+                },
+                //图片大小小于这个限制的时候，会自动启用base64编码图片
+                {
+                    /*test: /\.(png|jpg)$/,
+                    loader: 'url?limit=40000'*/
+                    test: /\.(gif|jpg|jpeg|png|woff|svg|eot|ttf)\??.*$/,
+                    loader: 'url-loader?limit=40000&name=[path][name].[ext]'
+                }
+            ]
             /**
-            * babel编译es6，react的jsx
-            * exclude来限定 npm 的禁用范围
-            * include来限定 babel 的使用范围，
-            * 提交到github时需要把babel模块排除掉
-            * es7语法分四个阶段分别对应四个插件 babel-preset-stage-0 1 2 3
-            */
-            {
-                test: /\.js(x)*$/,
-                include: [
-                    // 只去解析运行目录下的 src 文件夹
-                    path.join(process.cwd(), './src')
-                ],
-                exclude:/node_modules/,
-                //"compact": false 不压缩代码，一般用在测试与生产环境
-                /*loader:'babel'*/
-                loader: 'babel'
-                /*loader: 'babel-loader!jsx-loader?harmony'*/
-            },
-            /**
-                * 添加对样式表的处理
-                * 注：感叹号的作用在于使同一文件能够使用不同类型的loader
-                * css会和js打包到同一个文件中也可以打包到单独的css文件中
-                * modules相同的类名不会造成不同组件之间的污染，只对当前组件有效
-                * 从右向左开始使用，less->转为css字符串->使用style将代码放到页面style标签中。
-                */
-            {
-                test: /\.css$/,
-                /*loader: 'style!css?modules!postcss'*/
-                loader: ExtractTextPlugin.extract("style-loader", "css-loader")
-            },
-            {
-                test: /\.less$/,
-                loader: ExtractTextPlugin.extract('style-loader', 'css-loader!postcss-loader!less-loader')
-            },
-            {
-                test: /\.json$/,
-                loader: "json"
-            },
-            //图片大小小于这个限制的时候，会自动启用base64编码图片
-            {
-                /*test: /\.(png|jpg)$/,
-                loader: 'url?limit=40000'*/
-                test: /\.(gif|jpg|jpeg|png|woff|svg|eot|ttf)\??.*$/,
-                loader: 'url-loader?limit=40000&name=[path][name].[ext]'
-            }
-        ]
-        /**
-            * preloader 会在其他 loader 前应用
-            */
-        /*,preLoaders:[{
-            test: /\.js$/,
-            loader: "eslint-loader",
-            exclude: /node_modules/
-        }]*/
+             * preloader 会在其他 loader 前应用
+             */
+            /*,preLoaders:[{
+                test: /\.js$/,
+                loader: "eslint-loader",
+                exclude: /node_modules/
+            }]*/
     },
     /**
      * 用来拓展Webpack功能,会在整个构建过程中生效，执行相关的任务
      */
     plugins: [
         //根据模块调用次数，给模块分配ids，常被调用的ids分配更短的id，使得ids可预测，降低文件大小
-        new webpack.optimize.OccurenceOrderPlugin()
+        new webpack.optimize.OccurenceOrderPlugin(),
         //有些JS库有自己的依赖树，并且这些库可能有交叉的依赖，DedupePlugin打包的时候可以找出他们并删除重复的依赖。
-        ,new webpack.optimize.DedupePlugin()
+        new webpack.optimize.DedupePlugin(),
         //引用之前打包好的dll文件，注意下context参数，这个应该根据manifest.json文件中的引用情况来赋值，如果引用的都是npm安装的库，这里就填项目根目录就好了。*/
-        ,new webpack.DllReferencePlugin({
+        new webpack.DllReferencePlugin({
             context: staticCfg.rootPath,
             /**
-            * 在这里引入 manifest 文件
-            */
+             * 在这里引入 manifest 文件
+             */
             manifest: require(staticCfg.mainfestPath)
-        })
-        ,new SpritesmithPlugin(staticCfg.sprites)
+        }),
+        new SpritesmithPlugin(staticCfg.sprites),
         /**
-        * 该插件会提取entry chunk中所有的 require('*.css') ，分离出独立的css文件。免得以后只修改 css 导致 浏览器端 js 的缓存也失效了。
-        * 同时可以避免css在js中导致闪屏
-        */
-        ,new ExtractTextPlugin('[name].css', {allChunks: true})
+         * 该插件会提取entry chunk中所有的 require('*.css') ，分离出独立的css文件。免得以后只修改 css 导致 浏览器端 js 的缓存也失效了。
+         * 同时可以避免css在js中导致闪屏
+         */
+        new ExtractTextPlugin('[name].css', { allChunks: true }),
         //跳过编译时出错的代码并记录，使编译后运行时的包不会发生错误。
-        ,new webpack.NoErrorsPlugin()
-
+        new webpack.NoErrorsPlugin(),
         /**
-        * 提取多个入口文件中的公共模块到vendor.min.js中(vendor: ['react','react-dom'])
-        * CommonsChunkPlugin 可以将相同的模块提取出来单独打包，进而减小 rebuild 时的性能消耗 如 ['home','index']
-        * new webpack.optimize.CommonsChunkPlugin("admin-commons.js", ["ap1", "ap2"]),
-        * new webpack.optimize.CommonsChunkPlugin("commons.js", ["p1", "p2", "admin-commons.js"])
-        * 若引用dll的vendor.dll.js则不需要CommonsChunkPlugin
-        */
-        /*,new webpack.optimize.CommonsChunkPlugin('vendor', 'vendor.min.js')*/
+         * 提取多个入口文件中的公共模块到vendor.min.js中(vendor: ['react','react-dom'])
+         * CommonsChunkPlugin 可以将相同的模块提取出来单独打包，进而减小 rebuild 时的性能消耗 如 ['home','index']
+         * new webpack.optimize.CommonsChunkPlugin("admin-commons.js", ["ap1", "ap2"]),
+         * new webpack.optimize.CommonsChunkPlugin("commons.js", ["p1", "p2", "admin-commons.js"])
+         * 若引用dll的vendor.dll.js则不需要CommonsChunkPlugin
+         */
+        /*new webpack.optimize.CommonsChunkPlugin('vendor', 'vendor.min.js')*/
     ],
     /**
      * PostCSS来为CSS代码自动添加适应不同浏览器的CSS前缀（hack）
@@ -167,24 +166,24 @@ let config = {
         require('autoprefixer')
     ],
     /**
-    * 检查lint Es6 和 jsx 的 javascript
-    */
+     * 检查lint Es6 和 jsx 的 javascript
+     */
     eslint: {
         //configFile: './.eslintrc'
     },
     /**
-    * 文件解析配置
-    * 会依次寻找不带后缀的文件，.js后缀文件以及.jsx后缀文件。
-    */
+     * 文件解析配置
+     * 会依次寻找不带后缀的文件，.js后缀文件以及.jsx后缀文件。
+     */
     resolve: {
         //相对路径
-        modulesDirectories: ['node_modules', './src']
+        modulesDirectories: ['node_modules', './src'],
         //绝对路径
         /*root: path.resolve('node_modules'),*/
         //requrie的模块自动补全后缀
-        ,extensions: ['', '.js', '.jsx', '.json', '.css', '.less' , '.sass' ,'.scss', '.tpl']
+        extensions: ['', '.js', '.jsx', '.json', '.css', '.less', '.sass', '.scss', '.tpl'],
         //别名配置 import $ from 'test'
-        /*,alias: {
+        /*alias: {
            //test:path.resolve(__dirname,'test.js'),
         }*/
     },
@@ -199,11 +198,11 @@ let config = {
 let entryFiles = glob.sync('./src/js/**/*.entry.js');
 let newEntries = entryFiles.reduce((memo, filePath) => {
     newfilePath = replacePath(filePath);
-    let key = newfilePath.substring(newfilePath.lastIndexOf(path.sep),newfilePath.lastIndexOf('.'));
+    let key = newfilePath.substring(newfilePath.lastIndexOf(path.sep), newfilePath.lastIndexOf('.'));
     console.log("chunk:" + key + " &&&&& file:" + filePath);
     //若用gulp启动devserver 需要在gulpfile webpackDevServer中配置
     //config.entry.key.unshift("webpack-dev-server/client?http://localhost:8089/", "webpack/hot/dev-server");
-    memo[key] = [path.join(staticCfg.rootPath,filePath)]
+    memo[key] = [path.join(staticCfg.rootPath, filePath)]
     return memo;
 }, {});
 
@@ -225,29 +224,29 @@ let newEntries = entryFiles.reduce((memo, filePath) => {
  * title : true | false。如果是true，把link标签渲染为自闭合标签，XHTML要这么干的。默认false。
  */
 let htmlWebpackPlugins = entryFiles.map((filePath) => {
-    if(filePath.indexOf('common')  > -1) return;
+    if (filePath.indexOf('common') > -1) return;
     newfilePath = replacePath(filePath);
-    let name = newfilePath.substring(newfilePath.lastIndexOf("/") + 1,newfilePath.length - 9);
+    let name = newfilePath.substring(newfilePath.lastIndexOf("/") + 1, newfilePath.length - 9);
     let chunks = [
-        './js/common/kit/util.entry'
-        ,newfilePath.substring(0,newfilePath.lastIndexOf("."))
+        './js/common/kit/util.entry',
+        newfilePath.substring(0, newfilePath.lastIndexOf("."))
     ]
     console.log("HtmlWebpackPlugin:" + name + " &&&&& file:" + filePath);
     let htmlConfig = {
-        title:name,
+        title: name,
         filename: `./views/${name}.html`,
         template: `./src/views/${name}.html`,
         inject: true,
         hash: true,
         chunks: chunks //指定要加入的入口文件
     }
-    if(staticCfg.isProduction){
+    if (staticCfg.isProduction) {
         htmlConfig["minify"] = {
-            removeComments: true,       //去注释
-            collapseWhitespace: true,   //压缩空格
+            removeComments: true, //去注释
+            collapseWhitespace: true, //压缩空格
             removeAttributeQuotes: true //去除属性引用
-            // more options:
-            // https://github.com/kangax/html-minifier#options-quick-reference
+                // more options:
+                // https://github.com/kangax/html-minifier#options-quick-reference
         }
     }
     let htmlWebpackPlugin = new HtmlWebpackPlugin(htmlConfig);
@@ -260,8 +259,8 @@ let htmlWebpackPlugins = entryFiles.map((filePath) => {
  */
 config.entry = Object.assign({}, config.entry, newEntries);
 
-function replacePath(filePath){
-    return filePath.replace("./src/","");
+function replacePath(filePath) {
+    return filePath.replace("./src/", "");
 }
 
 /**

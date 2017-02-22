@@ -65,7 +65,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "bc7d74771a1cdaf8eb1b"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "1c2a7f2eff6c810b8f70"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -5382,12 +5382,33 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	/*require('./css/main.css');*/
-	var myPromise = Promise.resolve(43); //兼容低版本浏览器,只需在index.js中加入
+	_jquery2.default.ajax({
+	    url: "http://localhost:9999/api/index/getAll",
+	    dataType: 'jsonp',
+	    data: {
+	        name: "孙浩",
+	        pwd: 123
+	    },
+	    jsonp: 'callback',
+	    success: function success(data) {
+	        console.log(data);
+	    },
+	    error: function error() {
+	        console.log("异常");
+	    },
+	    timeout: 3000
+	});
 
+	//var fetch = require('node-fetch');
+	//fetch('http://localhost:9999/api/getAll').then(res => res.json()).then(data => console.log(data))
+
+
+	//兼容低版本浏览器,只需在index.js中加入
+	var myPromise = Promise.resolve(43);
 	myPromise.then(function (number) {
 	    //$.error('arguments is not number');
 	    console.log(number);
-	    (0, _jquery2.default)('body').append('<p>promise结果是1：' + number + '</p>');
+	    (0, _jquery2.default)('body').append('<p>promise结果是：' + number + '</p>');
 	});
 	_reactDom2.default.render(_react2.default.createElement(_Greeter2.default, null), document.getElementById("root"));
 
