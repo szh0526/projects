@@ -7,14 +7,14 @@ let emailService  = require('../lib/email.js')(credentials);
 
 module.exports = {
     //把路由整理在一起更清晰
-    registerRoutes: (app) => {
+    registerRoutes: function(app) {
         const _self = this;
         app.get('/newsletter', _self.newsLetter);
         app.post('/cart/checkout', _self.checkout);
         app.post('/process', _self.process);
         app.post('/process-contact', _self.processContact);
     },
-    newsLetter: (req, res) =>{
+    newsLetter: function(req, res, next) {
         res.clearCookie("userinfo");
         res.render('newsletter',{
             csrf: 'CSRF token goes here',
@@ -23,7 +23,7 @@ module.exports = {
         });
     },
     //如多个站点about/123/聪聪 /cart/:site
-    checkout: (req, res) =>{
+    checkout: function(req, res, next) {
         var cart = {};
         //if(!cart) next(new Error('Cart does not exist.'));
         var name = req.body.name || '',
@@ -47,7 +47,7 @@ module.exports = {
         );
         res.render('cart-thank-you', { cart: cart });
     },
-    process: (req, res) =>{
+    process: function(req, res, next) {
         if(req.xhr || req.accepts('json,html')==='json'){
             //校验输入内容
             //req.body获取ajax form表单值
@@ -86,7 +86,7 @@ module.exports = {
         }
     },
     //表单处理 必须引入中间件body-parser
-    processContact: (req, res) =>{
+    processContact: function(req, res, next) {
         console.log(req.body.name + ',' + req.body.email);
         try{
             // 保存到数据库……

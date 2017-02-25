@@ -6,10 +6,10 @@ module.exports = {
     },
     mongo:{
         "production":{
-            connectionString:"mongodb://localhost:27017/?safe=true;w=2;wtimeoutMS=2000"
+            connectionString:"mongodb://test:123@localhost:27017/?safe=true;wtimeoutMS=2000"
         },
         "development":{
-            connectionString:"mongodb://localhost:27017/?safe=true;w=2;wtimeoutMS=2000"
+            connectionString:"mongodb://test:123@localhost:27017/?safe=true;wtimeoutMS=2000"
         }
     }
 };

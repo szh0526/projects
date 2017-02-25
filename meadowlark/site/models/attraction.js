@@ -20,13 +20,43 @@ var AttractionSchema = mongoose.Schema({
     approved: Boolean
 });
 
-//扩展方法 转换经纬度google-to-baidu
-AttractionSchema.methods.getBaiduPoint = function(){
-    return {
-        lat: 123
-        , lng: 321
-    }
+AttractionSchema.methods.getAll = function(wherestr){
+    Attraction.find(wherestr, (err, result) => {
+        if(err) return null
+        return result;
+    });
 };
+
+AttractionSchema.methods.findById = function(id){
+    var wherestr = {_id: id};
+    Attraction.find(wherestr,(err, result) => {
+        if(err) return null
+        return result;
+    });
+};
+
+AttractionSchema.methods.insert = function(model){
+    let attraction = new Attraction(model);
+    attraction.save((err,result) => {
+        if(err) return null
+        return result;
+    });
+};
+
+AttractionSchema.methods.update = function(wherestr, updatestr){
+    Attraction.update(wherestr, updatestr, (err, result) => {
+        if(err) return null
+        return result;
+    });
+};
+
+AttractionSchema.methods.delete = function(wherestr){
+    Attraction.remove(wherestr, (err, result) => {
+        if(err) return false
+        return true;
+    });
+};
+
 
 //创建模型
 var Attraction = mongoose.model('Attraction', AttractionSchema);

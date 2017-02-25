@@ -73,7 +73,7 @@ exports.initMongoDbHandler = (app,rootpath) => {
         case 'development':
             //app.use(require('morgan')('dev'));//开发环境用morgan 紧凑的、彩色的开发日志
             //连接数据库
-            mongoose.connect(credentials.mongo.production.connectionString, opts);
+            mongoose.connect(credentials.mongo.development.connectionString, opts);
             break;
         case 'production':
             //生产环境用express-logger 支持按日志循环

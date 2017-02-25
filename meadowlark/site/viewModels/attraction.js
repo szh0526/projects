@@ -1,89 +1,61 @@
-/**
- * Created by sunzehao on 2016/12/2.
- * 视图模型
- * 保护模型的完整性
- */
-let Customer = require('../models/customer.js');
+let Attraction = require('../models/attraction.js');
 let _ = require('underscore');
 
-// 联合各域的辅助函数
-function smartJoin(arr, separator){
-    if(!separator) separator = ' ';
-    return arr.filter(function(elt){
-        return elt!==undefined &&
-            elt!==null &&
-            elt.toString().trim() !== '';
-    }).join(separator);
+/**
+ * 默认json数据
+ * @param  code     错误码
+ * @param  msg      错误信息
+ * @param  success  成功状态
+ * @param  data     数据
+ * @return json     视图模型
+ */
+exports.defaultJson = (code = "0019990000",msg = "接口异常",success = false,data = {}) => {
+    return {success: success,errorCode:code,errorMsg:msg,data:data}
 }
-module.exports = (customerId) => {
-    var customer = Customer.findById(customerId);
-    if(!customer) return { error: 'Unknown customer ID: ' +
-    req.params.customerId };
-    var orders = customer.getOrders().map((order) => {
-        return {
-            orderNumber: order.orderNumber,
-            date: order.date,
-            status: order.status,
-            url: '/orders/' + order.orderNumber
-        }
-    });
-    return {
-        firstName: customer.firstName,
-        lastName: customer.lastName,
-        name: smartJoin([customer.firstName, customer.lastName]),
-        email: customer.email,
-        address1: customer.address1,
-        address2: customer.address2,
-        city: customer.city,
-        state: customer.state,
-        zip: customer.zip,
-        fullAddress: smartJoin([
-            customer.address1,
-            customer.address2,
-            customer.city + ', ' +
-            customer.state + ' ' +
-            customer.zip,
-        ], '<br>'),
-        phone: customer.phone,
-        orders: customer.getOrders().map((order) => {
-            return {
-                orderNumber: order.orderNumber,
-                date: order.date,
-                status: order.status,
-                url: '/orders/' + order.orderNumber
-            }
-        })
+
+/**
+ * 根据id获取
+ * @param  attraction 实体
+ * @return vm         视图模型
+ */
+exports.getAttraction = function(attraction) {
+    var context = {
+        attraction:[]
     }
+    if(!attraction) return context;
+    context.attraction = attraction.map((attraction) => {
+        var vm = _.omit(attraction, 'updateId');
+        return _.assign(vm, {
+            id:vm._id,
+            name: vm.name,
+            description: vm.description,
+            location:vm.location,
+            history:vm.history
+        });
+    })
+    return context;
 }
-// 得到一个客户视图模型
-function getCustomerViewModel(customerId) {
-    var customer = Customer.findById(customerId);
-    if(!customer) return { error: 'Unknown customer ID: ' + req.params.customerId };
-    var orders = customer.getOrders().map((order) => {
-        return {
-            orderNumber: order.orderNumber,
-            date: order.date,
-            status: order.status,
-            url: '/orders/' + order.orderNumber
-        }
-    });
-    var vm = _.omit(customer, 'salesNotes');
-    return _.extend(vm, {
-        name: smartJoin([vm.firstName, vm.lastName]),
-        fullAddress: smartJoin([
-            customer.address1,
-            customer.address2,
-            customer.city + ', ' +
-            customer.state + ' ' +
-            customer.zip,
-        ], '<br>'),
-        orders: customer.getOrders().map((order) => {
-            return {
-                orderNumber: order.orderNumber,
-                date: order.date,
-                status: order.status,
-                url: '/orders/' + order.orderNumber
-            }
-        })
-    });
+
+
+/**
+ * 获取全部
+ * @param  attraction 实体
+ * @return vm         视图模型
+ */
+exports.getAllAttraction = function(attractions) {
+    var context = {
+        attractions:[]
+    }
+    if(!attractions || attractions.length == 0) return context;
+    context.attraction = attraction.map((attraction) => {
+        var vm = _.omit(attraction, 'updateId');
+        return _.assign(vm, {
+            id:vm._id,
+            name: vm.name,
+            description: vm.description,
+            location:vm.location,
+            history:vm.history
+        });
+    })
+    return context;
 }
