@@ -7,23 +7,23 @@ let emailService  = require('../lib/email.js')(credentials);
 
 module.exports = {
     //把路由整理在一起更清晰
-    registerRoutes: function(app) {
+    registerRoutes(app) {
         const _self = this;
         app.get('/newsletter', _self.newsLetter);
         app.post('/cart/checkout', _self.checkout);
         app.post('/process', _self.process);
         app.post('/process-contact', _self.processContact);
     },
-    newsLetter: function(req, res, next) {
+    newsLetter(req, res, next) {
         res.clearCookie("userinfo");
         res.render('newsletter',{
-            csrf: 'CSRF token goes here',
+            csrf: 'CSRF token',
             userinfo:req.cookies.userinfo,
             _userinfo:req.signedCookies.signed_userinfo
         });
     },
     //如多个站点about/123/聪聪 /cart/:site
-    checkout: function(req, res, next) {
+    checkout(req, res, next) {
         var cart = {};
         //if(!cart) next(new Error('Cart does not exist.'));
         var name = req.body.name || '',
@@ -39,13 +39,13 @@ module.exports = {
         };
         res.render('email/cart-thank-you',
             { layout: null, cart: cart }, function(err,html){
-                if(err) console.log('error in email template');
+                if(err) console.log(err);
                 //发送邮件
                 console.log(cart.billing.email)
                 emailService.send(cart.billing.email, '感谢预定旅程',html);
+                res.render('cart-thank-you', { cart: cart });
             }
         );
-        res.render('cart-thank-you', { cart: cart });
     },
     process: function(req, res, next) {
         if(req.xhr || req.accepts('json,html')==='json'){
@@ -86,11 +86,10 @@ module.exports = {
         }
     },
     //表单处理 必须引入中间件body-parser
-    processContact: function(req, res, next) {
-        console.log(req.body.name + ',' + req.body.email);
+    processContact(req, res, next) {
         try{
             // 保存到数据库……
-            return req.xhr ? res.render({success: true}) : res.redirect(303, '/thank-you');
+            return req.xhr ? res.json({success: true}) : res.redirect(303, '/thank-you');
         }catch(ex){
             return req.xhr ? res.json({error: 'Database error.'}) : res.redirect(303, '/error');
         }

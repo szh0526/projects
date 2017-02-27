@@ -1,6 +1,9 @@
 /**
  * 数据和逻辑
- * @type {*|exports}
+ * Mongoose是MongoDB的一个对象模型工具，是基于node-mongodb-native开发的MongoDB nodejs驱动
+ * Schema ： 一种以文件形式存储的数据库模型骨架，不具备数据库的操作能力
+ * Model ： 由Schema发布生成的模型，具有抽象属性和行为的数据库操作对
+ * Entity ： 由Model创建的实体，他的操作也会影响数据库
  */
 var mongoose = require('mongoose');
 
@@ -20,44 +23,52 @@ var AttractionSchema = mongoose.Schema({
     approved: Boolean
 });
 
-AttractionSchema.methods.getAll = function(wherestr){
-    Attraction.find(wherestr, (err, result) => {
+//创建模型
+var AttractionModel = mongoose.model('Attraction', AttractionSchema);
+
+let getAll = (wherestr) => {
+    AttractionModel.find(wherestr, (err, result) => {
         if(err) return null
         return result;
     });
 };
 
-AttractionSchema.methods.findById = function(id){
-    var wherestr = {_id: id};
-    Attraction.find(wherestr,(err, result) => {
+let findById = (id) => {
+    AttractionModel.find({_id: id},(err, result) => {
         if(err) return null
         return result;
     });
 };
 
-AttractionSchema.methods.insert = function(model){
-    let attraction = new Attraction(model);
-    attraction.save((err,result) => {
+let insert = (model) => {
+    let attractionEntity = new Attraction(model);
+    attractionEntity.save((err,result) => {
         if(err) return null
         return result;
     });
 };
 
-AttractionSchema.methods.update = function(wherestr, updatestr){
-    Attraction.update(wherestr, updatestr, (err, result) => {
+let update = (wherestr, updatestr) => {
+    AttractionModel.update(wherestr, updatestr, (err, result) => {
         if(err) return null
         return result;
     });
 };
 
-AttractionSchema.methods.delete = function(wherestr){
-    Attraction.remove(wherestr, (err, result) => {
+let remove = (wherestr) => {
+    AttractionModel..remove(wherestr, (err, result) => {
         if(err) return false
         return true;
     });
+
+    //关闭数据库链接
+    //db.disconnect();
 };
 
-
-//创建模型
-var Attraction = mongoose.model('Attraction', AttractionSchema);
-module.exports = Attraction;
+export {
+  findById as find,
+  getAll,
+  insert,
+  update,
+  remove
+};

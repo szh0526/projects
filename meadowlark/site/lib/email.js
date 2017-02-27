@@ -1,14 +1,15 @@
 /**
  * Created by sunzehao on 2016/11/12.
  */
-var nodemailer = require('nodemailer');
+var nodemailer = require("nodemailer");
+
 module.exports = function(credentials){
     //邮件服务传输实例对象
-    var mailTransport = nodemailer.createTransport('SMTP', {
+    var mailTransport = nodemailer.createTransport("SMTP", {
         /*service: 'Gmail',*/
         host: 'smtp.163.com',//163邮箱
-        secureConnection: true,
-        port: 465, //SSL
+        secureConnection : false,
+        port: 465, //SSL是465 TLS是587
         auth: {
             user: credentials.email_163.user,
             pass: credentials.email_163.password
@@ -23,11 +24,18 @@ module.exports = function(credentials){
                 from: from,
                 to: to,
                 subject: subj,
+                text: 'Hello to myself!',
                 html: body,
-                generateTextFromHtml: true
+                //附件
+                /*attachments : [{
+                    filename: 'text3.txt', // 文件名
+                    path: 'Your File path' // 文件路径
+                }]*/
             }, function(err){
                 if(err){
-                    this.emailError("邮件发送失败", "测试路径", err.stack);
+                    console.error('Unable to send email: ' + err);
+                }else{
+
                 }
             });
         },

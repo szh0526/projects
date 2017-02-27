@@ -1,40 +1,40 @@
 {
-    "name": "meadowlark",
-    "version": "1.0.0",
-    "description": "meadowlark",
-    "main": "meadowlark.js",
-    "scripts": {
-        "start": "supervisor meadowlark"
-    },
-    "author": "",
-    "license": "MIT",
-    "dependencies": {
-        "connect-rest": "^2.10.7",
-        "cookie-parser": "^1.4.3",
-        "cors": "^2.8.1",
-        "crc": "^3.4.1",
-        "csurf": "^1.9.0",
-        "domain": "0.0.1",
-        "express": "^4.14.0",
-        "express-handlebars": "^3.0.0",
-        "express-logger": "0.0.3",
-        "express-session": "^1.14.2",
-        "mongoose": "^4.6.8",
-        "morgan": "^1.7.0",
-        "nodemailer": "^2.6.4",
-        "session-mongoose": "^0.5.2",
-        "util": "^0.10.3",
-        "vhost": "^3.0.2"
-    },
-    "devDependencies": {
-        "chai": "^3.5.0",
-        "crc": "^3.4.1",
-        "debug": "^2.3.2",
-        "grunt": "^1.0.1",
-        "mocha": "^3.0.0"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git@github.com:szh0526/reactweb.git"
-    }
+  "name": "meadowlark",
+  "version": "1.0.0",
+  "description": "meadowlark",
+  "main": "meadowlark.js",
+  "scripts": {
+    "start": "supervisor meadowlark"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "connect-rest": "^2.10.7",
+    "cookie-parser": "^1.4.3",
+    "cors": "^2.8.1",
+    "crc": "^3.4.1",
+    "csurf": "^1.9.0",
+    "domain": "0.0.1",
+    "express": "^4.14.0",
+    "express-handlebars": "^3.0.0",
+    "express-logger": "0.0.3",
+    "express-session": "^1.14.2",
+    "mongoose": "^4.6.8",
+    "morgan": "^1.7.0",
+    "nodemailer": "^0.7.1",
+    "session-mongoose": "^0.5.2",
+    "util": "^0.10.3",
+    "vhost": "^3.0.2"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "crc": "^3.4.1",
+    "debug": "^2.3.2",
+    "grunt": "^1.0.1",
+    "mocha": "^3.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:szh0526/reactweb.git"
+  }
 }

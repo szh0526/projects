@@ -1,4 +1,4 @@
-let Vacation = require('../models/attraction.js');
+import {find} from '../models/vacation.js';
 let _ = require('underscore');
 
 /**
@@ -9,7 +9,7 @@ let _ = require('underscore');
  * @param  data     数据
  * @return json     视图模型
  */
-exports.defaultJson = (code = "0019990000",msg = "接口异常",success = false,data = {}) => {
+let defaultJson = (code = "0019990000",msg = "接口异常",success = false,data = {}) => {
     return {success: success,errorCode:code,errorMsg:msg,data:data}
 }
 
@@ -18,7 +18,7 @@ exports.defaultJson = (code = "0019990000",msg = "接口异常",success = false,
  * @param  vacation   实体
  * @return vm         视图模型
  */
-exports.getAllVacations = function(vacations) {
+let getAllVacations = (vacations) => {
    var context = {
         vacations:[]
     }
@@ -44,8 +44,8 @@ exports.getAllVacations = function(vacations) {
  * @param  id
  * @return vm
  */
-exports.getVacation = function(id) {
-    var vacation = Vacation.findById(id);
+let getVacation = (id) => {
+    var vacation = findById(id);
     if(!vacation) return null;
     //排除available属性
     var vm = _.omit(vacation, 'available');
@@ -62,3 +62,9 @@ exports.getVacation = function(id) {
         inSeason: vm.inSeason
     });
 }
+
+exports {
+    defaultJson,
+    getAllVacations,
+    getVacation
+};

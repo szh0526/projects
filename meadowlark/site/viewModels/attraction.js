@@ -1,4 +1,4 @@
-let Attraction = require('../models/attraction.js');
+import {find} from '../models/attraction.js';
 let _ = require('underscore');
 
 /**
@@ -9,7 +9,7 @@ let _ = require('underscore');
  * @param  data     数据
  * @return json     视图模型
  */
-exports.defaultJson = (code = "0019990000",msg = "接口异常",success = false,data = {}) => {
+let defaultJson = (code = "0019990000",msg = "接口异常",success = false,data = {}) => {
     return {success: success,errorCode:code,errorMsg:msg,data:data}
 }
 
@@ -18,7 +18,7 @@ exports.defaultJson = (code = "0019990000",msg = "接口异常",success = false,
  * @param  attraction 实体
  * @return vm         视图模型
  */
-exports.getAttraction = function(attraction) {
+let getAttraction = (attraction) => {
     var context = {
         attraction:[]
     }
@@ -42,7 +42,7 @@ exports.getAttraction = function(attraction) {
  * @param  attraction 实体
  * @return vm         视图模型
  */
-exports.getAllAttraction = function(attractions) {
+let getAllAttraction = (attractions) => {
     var context = {
         attractions:[]
     }
@@ -59,3 +59,10 @@ exports.getAllAttraction = function(attractions) {
     })
     return context;
 }
+
+
+exports {
+    defaultJson,
+    getAllAttraction,
+    getAttraction
+};
