@@ -5,7 +5,9 @@
  * Model ： 由Schema发布生成的模型，具有抽象属性和行为的数据库操作对
  * Entity ： 由Model创建的实体，他的操作也会影响数据库
  */
-var mongoose = require('mongoose');
+let promise = require('bluebird'); //promise的具体实现
+let mongoose = require('mongoose');
+mongoose.Promise = promise;
 
 //定义模式
 var VacationSchema = mongoose.Schema({
@@ -31,47 +33,29 @@ VacationSchema.methods.getDisplayPrice = function(){
     return '$' + (_this.priceInCents / 100).toFixed(2);
 };
 
-//创建模型
-var VacationModel = mongoose.model('Vacation', VacationSchema);
+//创建模型 model第一个参数是数据库表名
+var VacationModel = mongoose.model('Vacations', VacationSchema);
 
-let getAll = (wherestr) => {
-    VacationModel.find(wherestr, (err, result) => {
-        if(err) return null
-        return result;
-    });
+let getAll = () => {
+    return VacationModel.find({});
 };
 
 let findById = (id) => {
-    VacationModel.find(wherestr,(err, result) => {
-        if(err) return null
-        return result;
-    });
+    return VacationModel.find({_id: id});
 };
 
 let insert = (model) => {
-    let Vacation = new Vacation(model);
-    VacationModel.save((err,result) => {
-        if(err) return null
-        return result;
-    });
+    return new VacationModel(model).save();
 };
 
-let update = (wherestr, updatestr) => {
-    VacationModel.update(wherestr, updatestr, (err, result) => {
-        if(err) return null
-        return result;
-    });
+let update = (wherestr, model) => {
+    return VacationModel.update(wherestr, model);
 };
 
-let remove = (wherestr) => {
-    VacationModel.remove(wherestr, (err, result) => {
-        if(err) return false
-        return true;
-    });
-
-    //关闭数据库链接
-    //db.disconnect();
+let remove = (id) => {
+    return VacationModel.remove({_id: id});
 };
+
 
 export {
   findById as find,

@@ -1,11 +1,9 @@
 /**
  * index控制器
  */
-var cluster = require('cluster');
-
-module.exports = {
+export default {
     //把路由整理在一起更清晰
-    registerRoutes(app) {
+    registerRoutes(app){
         const _self = this;
         app.get('/', _self.home);
         app.get('/about/:id/:name', _self.about);
@@ -38,6 +36,7 @@ module.exports = {
     },
     //服务器宕机异常  集群会创建新的工作线程
     serverFail(req, res, next) {
+        let cluster = require('cluster');
         //当前工作线程宕机
         process.nextTick(function(){
             if(cluster.isWorker) {

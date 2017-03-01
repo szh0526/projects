@@ -1,11 +1,12 @@
-let middlewares = require("./routes/middlewares.js");
-let express = require('express');
-let http = require('http');
-/*let https = require('https'); 与http不能共存*/
-let fs = require('fs');
-let app = express();
-let server = null;//当前node服务
-let rootPath = __dirname;
+import * as middlewares from './routes/middlewares.js';
+import initRoutes from './routes/routes.js';
+let express = require('express')
+,http = require('http')
+//,https = require('https'); //与http不能共存
+,fs = require('fs')
+,app = express()
+,server = null//当前node服务
+,rootPath = __dirname
 
 
 middlewares.defaultSettingsHandler(app);
@@ -16,7 +17,7 @@ app.use(middlewares.bodyParserHandler());
 app.use(middlewares.cookieParserHandler());
 app.use(middlewares.expressSessionHandler());
 app.use(middlewares.commonHandler(app));
-var routes = require('./routes/routes.js')(app);
+initRoutes(app);
 app.use(middlewares.autoViewHandler(rootPath));
 app.use(middlewares.notCatchHandler(server));
 //放在routes之后

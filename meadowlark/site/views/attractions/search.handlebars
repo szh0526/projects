@@ -1,4 +1,7 @@
+<div>
 <h2 class="sub-header">旅行列表</h2>
+<a href="operate" id="btnAdd" class="btn btn-default">添加</a>
+</div>
 <div class="table-responsive">
     <table class="table table-striped">
         <thead>
@@ -48,10 +51,10 @@
                         dataType:'json',
                         success: function(data){
                             if(data.success){
-                                alert(data.msg);
+                                alert(data.errorMsg);
                                 window.location.href = "/attractions/search";
                             }else{
-                                alert(data.msg);
+                                alert(data.errorMsg);
                             }
                         },
                         error: function(){

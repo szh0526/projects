@@ -10,8 +10,9 @@
  * errorhandler app.use(require(errorhandler)()); //为客户端提供栈追踪和错误消息
  * method-override app.use(require(methodoverride)()); //允许浏览器“假装”使用除GET 和POST之外的HTTP 方法。编写API 调试时使用。
  * */
-let credentials = require("../lib/credentials.js")
-    ,express = require('express')
+import credentials from '../lib/credentials.js';
+import getstatic from '../lib/static.js';
+let express = require('express')
     ,cluster = require('cluster')
     ,bodyparser = require('body-parser')
     ,cookieparser = require('cookie-parser')
@@ -21,14 +22,13 @@ let credentials = require("../lib/credentials.js")
     ,mongoose = require('mongoose')
     ,fs = require('fs')
     ,csurf = require('csurf');
-const getstatic = require('../lib/static.js').map;
 
 
 /**
  * express默认配置
  * @param app
  */
-exports.defaultSettingsHandler = (app) => {
+let defaultSettingsHandler = (app) => {
     app.set('port', process.env.PORT || 3000);//设置端口号 环境变量process.env.PORT
     app.disable('x-powered-by');//禁用Express 的X-Powered-By 头信息
     /**
@@ -56,13 +56,13 @@ exports.defaultSettingsHandler = (app) => {
 /**
  * 允许跨域资源共享 只有在api接口时才允许跨域
  */
-exports.allowApiCorsHandler = () => {
+let allowApiCorsHandler = () => {
    return cors();
 };
 /**
  * 初始化mongodb
  */
-exports.initMongoDbHandler = (app,rootpath) => {
+let initMongoDbHandler = (app,rootpath) => {
     // 数据库配置
     var opts = {
         server: {
@@ -73,45 +73,53 @@ exports.initMongoDbHandler = (app,rootpath) => {
         case 'development':
             //app.use(require('morgan')('dev'));//开发环境用morgan 紧凑的、彩色的开发日志
             //连接数据库
-            mongoose.connect(credentials.mongo.development.connectionString, opts);
+            credentials.mongo.dbConnection = mongoose.connect(credentials.mongo.development.connectionString, opts);
             break;
         case 'production':
             //生产环境用express-logger 支持按日志循环
             /*app.use(require('express-logger')({
              path: rootpath + '/log/requests.log'
              }));*/
-            mongoose.connect(credentials.mongo.production.connectionString, opts);
+            credentials.mongo.dbConnection = mongoose.connect(credentials.mongo.production.connectionString, opts);
             break;
         default:
             throw new Error('Unknown execution environment: ' + app.get('env'));
     }
+
+    credentials.mongo.dbConnection.connection.on("error", function (error) {
+        console.log("MongoDB连接失败：" + error);
+    });
+
+    credentials.mongo.dbConnection.connection.on("open", function () {
+        console.log("MongoDB连接成功");
+    });
 };
 
 /**
  * static 中间件给所有静态文件创建了路由  放在所有路由前面
  */
-exports.staticshHandler = (path) => {
+let staticshHandler = (path) => {
     return express.static(path);
 };
 
 /**
  * bodyparser中:1.urlencoded中间件处理表单和AJAX请求 2.json中间件返回json格式
  */
-exports.bodyParserHandler = () => {
+let bodyParserHandler = () => {
     return bodyparser();
 };
 
 /**
  * cookie-parser 处理cookie
  */
-exports.cookieParserHandler = () => {
+let cookieParserHandler = () => {
     return cookieparser(credentials.cookieSecret);
 };
 
 /**
  * expresssession中：会话的存储方式使用数据库存储
  */
-exports.expressSessionHandler = () => {
+let expressSessionHandler = () => {
     var sessionStore = new MongoSessionStore({url: credentials.mongo.production.connectionString});
     return expresssession({store: sessionStore});
 };
@@ -119,7 +127,7 @@ exports.expressSessionHandler = () => {
 /**
  * 跨站请求伪造csurf
  */
-exports.csurfHandler = () => {
+let csurfHandler = () => {
     return csurf();
 };
 
@@ -127,7 +135,7 @@ exports.csurfHandler = () => {
  * http://localhost:3000/about_test?test=1
  * 中间件是一种功能的封装方式，具体来说就是封装在程序中处理HTTP 请求的功能
  */
-exports.commonHandler = (app) => {
+let commonHandler = (app) => {
     return (req, res, next) => {
         //集群模式下,在每个请求上得到不同的工作线程
         if(cluster.isWorker) console.log('工作线程 %d 收到请求', cluster.worker.id);
@@ -144,7 +152,7 @@ exports.commonHandler = (app) => {
 /**
  * 处理未捕获的异常
  */
-exports.notCatchHandler = (server) => {
+let notCatchHandler = (server) => {
     return (req, res, next) => {
         // 为这个请求创建一个域
         var domain = require('domain').create();
@@ -187,7 +195,7 @@ exports.notCatchHandler = (server) => {
 /**
  * 自动化渲染视图  可以直接添加视图到views下并浏览器请求
  */
-exports.autoViewHandler = (rootpath) => {
+let autoViewHandler = (rootpath) => {
     var autoViews = {};
     return (req,res,next) => {
         var path = req.path.toLowerCase();
@@ -213,7 +221,7 @@ exports.autoViewHandler = (rootpath) => {
  * 400（错误的请求）
  * 401（未授权）
  */
-exports.notFoundHandler = () => {
+let notFoundHandler = () => {
     return (req, res, next) => {
         res.status(404).render('404');
     }
@@ -222,9 +230,25 @@ exports.notFoundHandler = () => {
 /**
  * 500 错误处理器（中间件）
  */
-exports.serverErrHandler = () => {
+let serverErrHandler = () => {
     return (err, req, res, next) => {
         console.error(err.stack);
         res.status(500).render('500');
     }
 };
+
+export {
+    defaultSettingsHandler,
+    allowApiCorsHandler,
+    initMongoDbHandler,
+    staticshHandler,
+    bodyParserHandler,
+    cookieParserHandler,
+    expressSessionHandler,
+    csurfHandler,
+    commonHandler,
+    notCatchHandler,
+    autoViewHandler,
+    notFoundHandler,
+    serverErrHandler
+}

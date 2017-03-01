@@ -75,6 +75,7 @@ let config = {
                  * include来限定 babel 的使用范围，
                  * 提交到github时需要把babel模块排除掉
                  * es7语法分四个阶段分别对应四个插件 babel-preset-stage-0 1 2 3
+                 * .babelrc rc结尾的文件通常代表运行时自动加载的文件
                  */
                 {
                     test: /\.js(x)*$/,

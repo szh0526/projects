@@ -1,12 +1,13 @@
-let main = require('../controllers/main.js')
-    ,newsletter = require('../controllers/newsletter.js')
-    ,attraction = require('../controllers/attraction.js');
-    /*,vacation = require('../controllers/vacation.js');*/
+import mainController from '../controllers/main.js';
+import newsletterController from '../controllers/newsletter.js';
+import attractionController from '../controllers/attraction.js';
+import vacationController from '../controllers/vacation.js';
 
-module.exports = (app) => {
-    main.registerRoutes(app);
-    newsletter.registerRoutes(app);
-   /* attraction.registerRoutes(app);*/
-
-    /* vacation.registerRoutes(app);*/
+let initRoutes = (app) => {
+    mainController.registerRoutes(app);
+    newsletterController.registerRoutes(app);
+    attractionController.registerRoutes(app);
+    vacationController.registerRoutes(app);
 }
+
+export default initRoutes;

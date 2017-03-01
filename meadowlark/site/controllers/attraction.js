@@ -6,35 +6,40 @@
 import {getAll,find,insert,update,remove} from '../models/attraction.js';
 import {defaultJson,getAllAttraction,getAttraction} from '../viewModels/attraction.js';
 
-module.exports = {
+export default {
     registerRoutes(app) {
         const _self = this;
         app.get('/attractions/search',_self.getAllAttractions);
         app.get('/attractions/operate/:id',_self.findAttraction);
-        app.get('/api/attraction/findById', _self.findAttractionById);
+        app.get('/attractions/operate',_self.findAttraction);
         app.post('/api/attraction/insert', _self.insertAttraction);
         app.post('/api/attraction/update', _self.updateAttraction);
         app.post('/api/attraction/delete/:id', _self.delAttraction);
     },
     getAllAttractions(req, res, next){
-        var attraction = getAll(req.params.id);
-        if(!attraction) return next(); // 将这个传给404 处理器
-        res.render('attractions/search', getAllAttraction(attraction));
+        getAll()
+        .then(function(result){
+            res.render('attractions/search', getAllAttraction(result));
+        }).catch(function(err){
+            console.log(err);
+            next(); // 将这个传给404 处理器
+        })
     },
     findAttraction(req, res, next){
-        const _self = this;
-        var attraction = _self.findAttractionById(req.params.id);
-        if(!attraction) return next(); // 将这个传给404 处理器
-        res.render('attractions', getAttraction(attraction));
-    },
-    findAttractionById(id) {
-        var attraction =null;
-        if(!id) return attraction;
-        attraction = find(id);
-        if(attraction) return attraction;
+        if(!req.params.id){
+            res.render('attractions/operate', {});
+        }else{
+            find(req.params.id)
+            .then(function(result){
+                res.render('attractions/operate', getAttraction(result));
+            }).catch(function(err){
+                console.log(err);
+                next(); // 将这个传给404 处理器
+            });
+        }
     },
     insertAttraction(req, res, next){
-        let attraction = insert({
+        insert({
             name: req.body.name,
             description: req.body.description,
             location: {
@@ -49,49 +54,48 @@ module.exports = {
             },
             updateId: (new Date).getTime(),
             approved: false
-        });
-        if(!attraction) res.json(defaultJson("0019990001","添加失败"));
-        res.json({
-            success: true
-            ,errorCode:""
-            ,errorMsg:"添加成功!"
-            ,data:{}
+        }).then(function(result){
+            res.json(defaultJson("","添加成功",true,result));
+        }).catch(function(err){
+            res.json(defaultJson("0019990001","添加失败"));
         });
     },
     updateAttraction(req, res, next){
-        let attraction = update(
-            {_id: req.body.id}
-            , {
-                location: {
-                    lat: req.body.lat
-                    , lng: req.body.lng
-                }
-                , name: req.body.name
-                , description: req.body.description
-                , history: {
-                    event: 'updated',
-                    notes: '',
-                    email: req.body.email,
-                    date: new Date()
-                }
+        update({_id: req.body.id},
+            {location: {
+                lat: req.body.lat
+                , lng: req.body.lng
             }
-        )
-        if(!attraction) res.json(defaultJson("0019990002","更新失败"));
-        res.json({
-            success: true
-            ,errorCode:""
-            ,errorMsg:"更新成功!"
-            ,data:{}
+            , name: req.body.name
+            , description: req.body.description
+            , history: {
+                event: 'updated',
+                notes: '',
+                email: req.body.email,
+                date: new Date()
+            }
+        }).then(function(result){
+            res.json(defaultJson("","更新成功",true,result));
+        }).catch(function(err){
+            res.json(defaultJson("0019990002","更新失败"));
         });
     },
     delAttraction(req, res, next){
-        let attraction = delete({_id: req.params.id});
-        if(!attraction) res.json(defaultJson("0019990003","删除失败"));
-        res.json({
-            success: true
-            ,errorCode:""
-            ,errorMsg:"删除成功!"
-            ,data:{}
+        var id = req.params.id;
+        find(id)
+        .then(function(result){
+            if(result && result.length > 0){
+                remove(id)
+                .then(function(result){
+                    res.json(defaultJson("","删除成功",true,result));
+                }).catch(function(err){
+                    res.json(defaultJson("0019990003","删除失败"));
+                });
+            }else{
+                res.json(defaultJson("0019990004","该记录不存在"));
+            }
+        }).catch(function(err){
+            throw new Error('服务器异常:' + err);
         });
     }
 }

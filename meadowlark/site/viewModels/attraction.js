@@ -1,5 +1,4 @@
-import {find} from '../models/attraction.js';
-let _ = require('underscore');
+let _ = require('lodash');
 
 /**
  * 默认json数据
@@ -15,16 +14,13 @@ let defaultJson = (code = "0019990000",msg = "接口异常",success = false,data
 
 /**
  * 根据id获取
- * @param  attraction 实体
+ * @param  vm 实体
  * @return vm         视图模型
  */
-let getAttraction = (attraction) => {
-    var context = {
-        attraction:[]
-    }
-    if(!attraction) return context;
-    context.attraction = attraction.map((attraction) => {
-        var vm = _.omit(attraction, 'updateId');
+let getAttraction = (attractions) => {
+    if(!attractions || attractions.length == 0) return {};
+    let arrs = attractions.map((attraction) => {
+        let vm = _.omit(attraction, 'updateId');
         return _.assign(vm, {
             id:vm._id,
             name: vm.name,
@@ -33,7 +29,7 @@ let getAttraction = (attraction) => {
             history:vm.history
         });
     })
-    return context;
+    return _.head(arrs);
 }
 
 
@@ -47,7 +43,7 @@ let getAllAttraction = (attractions) => {
         attractions:[]
     }
     if(!attractions || attractions.length == 0) return context;
-    context.attraction = attraction.map((attraction) => {
+    context.attractions = attractions.map((attraction) => {
         var vm = _.omit(attraction, 'updateId');
         return _.assign(vm, {
             id:vm._id,
@@ -61,8 +57,8 @@ let getAllAttraction = (attractions) => {
 }
 
 
-exports {
+export {
     defaultJson,
     getAllAttraction,
     getAttraction
-};
+}

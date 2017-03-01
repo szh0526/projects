@@ -4,11 +4,16 @@
   "description": "meadowlark",
   "main": "meadowlark.js",
   "scripts": {
-    "start": "supervisor meadowlark"
+    "start": "supervisor meadowlark",
+    "test": "babel-node meadowlark",
+    "debug": "babel-node --debug-brk meadowlark"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "babel-core": "^6.23.1",
+    "babel-preset-es2015": "^6.22.0",
+    "bluebird": "^3.4.7",
     "connect-rest": "^2.10.7",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.1",
@@ -27,6 +32,7 @@
     "vhost": "^3.0.2"
   },
   "devDependencies": {
+    "babel-cli": "^6.23.0",
     "chai": "^3.5.0",
     "crc": "^3.4.1",
     "debug": "^2.3.2",

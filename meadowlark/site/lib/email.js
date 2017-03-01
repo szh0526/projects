@@ -1,11 +1,11 @@
 /**
  * Created by sunzehao on 2016/11/12.
  */
-var nodemailer = require("nodemailer");
+let nodemailer = require("nodemailer");
 
-module.exports = function(credentials){
+export default (credentials) => {
     //邮件服务传输实例对象
-    var mailTransport = nodemailer.createTransport("SMTP", {
+    let mailTransport = nodemailer.createTransport("SMTP", {
         /*service: 'Gmail',*/
         host: 'smtp.163.com',//163邮箱
         secureConnection : false,
@@ -15,8 +15,8 @@ module.exports = function(credentials){
             pass: credentials.email_163.password
         }
     });
-    var from = 'sunzehao <szh6602518a@163.com>';
-    var errorRecipient = 'szh6602518a@163.com';
+    let from = 'sunzehao <szh6602518a@163.com>';
+    let errorRecipient = 'szh6602518a@163.com';
     return {
         //to收件人,subj标题,body email模板内容
         send: function(to, subj, body){

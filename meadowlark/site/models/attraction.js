@@ -5,10 +5,12 @@
  * Model ： 由Schema发布生成的模型，具有抽象属性和行为的数据库操作对
  * Entity ： 由Model创建的实体，他的操作也会影响数据库
  */
-var mongoose = require('mongoose');
+let promise = require('bluebird'); //promise的具体实现
+let mongoose = require('mongoose');
+mongoose.Promise = promise;
 
 //定义模式
-var AttractionSchema = mongoose.Schema({
+let AttractionSchema = mongoose.Schema({
     //id:Number, _id
     name: String,
     description: String,
@@ -23,46 +25,27 @@ var AttractionSchema = mongoose.Schema({
     approved: Boolean
 });
 
-//创建模型
-var AttractionModel = mongoose.model('Attraction', AttractionSchema);
+//创建模型 model第一个参数是数据库表名
+let AttractionModel = mongoose.model('Attractions', AttractionSchema);
 
-let getAll = (wherestr) => {
-    AttractionModel.find(wherestr, (err, result) => {
-        if(err) return null
-        return result;
-    });
+let getAll = () => {
+    return AttractionModel.find({});
 };
 
 let findById = (id) => {
-    AttractionModel.find({_id: id},(err, result) => {
-        if(err) return null
-        return result;
-    });
+    return AttractionModel.find({_id: id});
 };
 
 let insert = (model) => {
-    let attractionEntity = new Attraction(model);
-    attractionEntity.save((err,result) => {
-        if(err) return null
-        return result;
-    });
+    return new AttractionModel(model).save();
 };
 
-let update = (wherestr, updatestr) => {
-    AttractionModel.update(wherestr, updatestr, (err, result) => {
-        if(err) return null
-        return result;
-    });
+let update = (wherestr, model) => {
+    return AttractionModel.update(wherestr, model);
 };
 
-let remove = (wherestr) => {
-    AttractionModel..remove(wherestr, (err, result) => {
-        if(err) return false
-        return true;
-    });
-
-    //关闭数据库链接
-    //db.disconnect();
+let remove = (id) => {
+    return AttractionModel.remove({_id: id});
 };
 
 export {

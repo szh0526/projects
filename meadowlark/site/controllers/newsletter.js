@@ -2,10 +2,11 @@
  * Created by sunzehao on 2016/12/6.
  * 新闻通知处理器
  */
-let credentials   = require("../lib/credentials.js");
-let emailService  = require('../lib/email.js')(credentials);
+import credentials from '../lib/credentials.js';
+import email from '../lib/email.js';
+let emailService  = email(credentials);
 
-module.exports = {
+export default  {
     //把路由整理在一起更清晰
     registerRoutes(app) {
         const _self = this;
