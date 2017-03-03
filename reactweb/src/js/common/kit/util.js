@@ -157,7 +157,7 @@ let arrToMap = (arr) => new Map(arr);
  * @param  Map 键都是字符串的Map
  * @return Object
  */
- let strMapToObj = (strMap) => {
+let strMapToObj = (strMap) => {
     let obj = Object.create(null);
     for (let [k,v] of strMap) {
         obj[k] = v;
@@ -205,3 +205,27 @@ let jsonToStrMap = (jsonStr) => objToStrMap(JSON.parse(jsonStr));
  * @return Map
  */
 let arrJsonToMap = (jsonStr) => new Map(JSON.parse(jsonStr));
+
+
+
+export {
+    selfish,
+    mix,
+    copyProperties,
+    mixins,
+    concatSpreadable,
+    unique,
+    dedupe,
+    union,
+    intersect,
+    difference,
+    transMap,
+    mapToArr,
+    arrToMap,
+    strMapToObj,
+    objToStrMap,
+    strMapToJson,
+    mapToArrayJson,
+    jsonToStrMap,
+    arrJsonToMap
+}
