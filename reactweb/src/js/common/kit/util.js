@@ -73,8 +73,135 @@ function copyProperties(target, source) {
  *     let obj = new MyClass();
  *     obj.foo() // 'foo'
  */
-function mixins(...list) {
-  return function (target) {
-    Object.assign(target.prototype, ...list);
-  };
+let mixins = (...list) => (target) => Object.assign(target.prototype, ...list);
+
+/**
+ * 类似数组的追加
+ * spreadable false不可展开   true可展开
+ * 类似数组:let obj = {length: 2, 0: 'c', 1: 'd'};
+ * var newarr = concatSpreadable([a,b],obj,true)
+ */
+let concatSpreadable = (head,tail,spreadable = false) => {
+    tail[Symbol.isConcatSpreadable] = spreadable;
+    return head.concat(tail);
 }
+
+/**
+ * 数组去重
+ */
+let unique = (array) => [...new Set(array)];
+
+/**
+ * 数组去重
+ */
+let dedupe = (array) => Array.from(new Set(array));
+
+
+/**
+ * 数组并集
+ * @param  [] a
+ * @param  [] b
+ * @return []
+ */
+let union = (a,b) => {
+    let seta = new Set(a),setb = new Set(b);
+    return [...new Set([...seta, ...setb])];
+}
+
+/**
+ * 数组交集
+ * @param  [] a
+ * @param  [] b
+ * @return []
+ */
+let intersect = (a,b) => {
+    let seta = new Set(a),setb = new Set(b);
+    return [...new Set([...a].filter(x => b.has(x)))];
+}
+
+/**
+ * 数组差集
+ * @param  [] a
+ * @param  [] b
+ * @return []
+ */
+ let difference = (a,b) =>{
+    let seta = new Set(a),setb = new Set(b);
+    return [...new Set([...a].filter(x => !b.has(x)))]
+ }
+
+/**
+ * 转换map对象 并返回map
+ * @param  Map map
+ * @param  函数 fn
+ * @return Map对象
+ */
+let transMap = (map,fn) => new Map([...map].filter(fn));
+
+/**
+ * 转换map对象为数组
+ * @param  Map map
+ * @return []
+ */
+let mapToArr = (map) => [...map];
+
+/**
+ * 转换map对象为数组
+ * @param  Map map
+ * @return []
+ */
+let arrToMap = (arr) => new Map(arr);
+
+/**
+ * Map转为对象
+ * @param  Map 键都是字符串的Map
+ * @return Object
+ */
+ let strMapToObj = (strMap) => {
+    let obj = Object.create(null);
+    for (let [k,v] of strMap) {
+        obj[k] = v;
+    }
+    return obj;
+}
+
+/**
+ * 对象转为Map
+ * @param  Object
+ * @return Map
+ */
+let objToStrMap = (obj) => {
+  let strMap = new Map();
+  for (let k of Object.keys(obj)) {
+    strMap.set(k, obj[k]);
+  }
+  return strMap;
+}
+
+/**
+ * map转为Json
+ * @param  Object 键都是字符串的Map
+ * @return Json
+ */
+let strMapToJson = (strMap) => JSON.stringify(strMapToObj(strMap));
+
+/**
+ * map转数组JSON
+ * @param  Map 键有非字符串
+ * @return ArrayJson
+ */
+let mapToArrayJson = (map) => JSON.stringify([...map]);
+
+/**
+ * JSON转为Map
+ * @param  Json
+ * @return Map
+ */
+let jsonToStrMap = (jsonStr) => objToStrMap(JSON.parse(jsonStr));
+
+/**
+ * 数组JSON转为Map
+ * @param  Json
+ * @return Map
+ */
+let arrJsonToMap = (jsonStr) => new Map(JSON.parse(jsonStr));
