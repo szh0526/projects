@@ -170,3 +170,348 @@ arrs.forEach(function(element,index) {
 //////////////////////////////////////////////////////////////////////////////////
 //                                  Proxy
 //////////////////////////////////////////////////////////////////////////////////
+
+//Proxy 对象设一层“拦截”，访问该对象都必须先通过这层拦截（过滤和改写）
+class testProxy {
+    value=1;
+    appp=2;
+    _test=0;
+    _test1=1;
+
+    constructor(name){
+        this.name= name;
+    }
+    static staticFun(){
+        console.log("静态方法");
+    }
+
+    toString(){
+        return this.name;
+    }
+}
+
+//属性带_下划线属于私有属性
+function invariant (key, action) {
+  if (key[0] === '_') {
+    throw new Error(`Invalid attempt to ${action} private "${key}" property`);
+  }
+}
+
+//proxy 过滤一些对类的操作  proxy中赋值 取值之类的操作可以用reflect
+var proxyObj = new Proxy(testProxy, {
+  //拦截对象属性的读取，比如proxy.foo和proxy['foo']。
+  get(target, key) {
+    invariant(key, 'get');
+    if (key in target) {
+      return Reflect.get(target, key);
+    } else {
+      throw new ReferenceError("Property \"" + key + "\" does not exist.");
+    }
+  },
+  //拦截对象属性的设置，比如proxy.foo = v或proxy['foo'] = v，返回一个布尔值。
+  set(target, key, value) {
+    invariant(key, 'set');
+    return Reflect.set(target, key, value);
+  },
+  //拦截delete proxy[propKey]的操作，返回一个布尔值。
+  deleteProperty(target, key){
+    invariant(key, 'delete');
+    return true;
+  },
+  construct(target, args) {
+    console.log('called: ' + args.join(', '));
+    return {value:args[0]};
+  },
+  ownKeys (target) {
+    return Reflect.ownKeys(target).filter(key => key[0] !== '_');
+  }
+});
+
+/*
+proxyObj.value = 1;
+++proxyObj.value;
+"value" in proxyObj;
+//delete proxyObj.value;
+new proxyObj(1,2,3,4,5);
+//delete proxyObj._value;
+
+for (let key of Object.keys(proxyObj)) {
+  console.log(key);
+}*/
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//                                  Promise
+//////////////////////////////////////////////////////////////////////////////////
+//三种状态：Pending（进行中）、成功：Resolved（已完成，又称 Fulfilled）和失败：Rejected（已失败）
+
+//Promise实例创建立即执行
+let promise = new Promise(function(resolve, reject) {
+    if(false){
+        resole();
+    }else{
+        reject(new Error('失败'))
+    }
+});
+
+//parm1:Resolved回调，parm2:Reject回调(非必须)
+//同步任务执行完才执行
+promise.then(function(value) {
+  console.log('Resolved.');
+}, function(error) {
+  console.log('Rejected.');
+});
+
+//p1的状态决定了p2的状态  p1状态是pending则p2等待p1的状态,p1的状态是Resolved或Rejected，p2会立刻执行
+//promise第一个回调返回promiseA对象可以再then回调接收promiseA的状态处理
+//由于p1返回的是reject状态所以p2接收到p1状态返回error
+//then的rejected回调不建议传由catch自动捕获
+
+/*getJSON("./config.json")
+.then(post => getJSON("./config.json"))
+.then(comments => console.log("Resolved: ", comments))
+.catch(error => {
+    //任何一个then抛出的错误都会被catch捕捉
+    // 捕获运行中抛出的错误(如then方法中抛出 throw new Error('test')会被catch捕获)
+    console.log('发生错误！', error);
+});*/
+
+
+//Promise.resolve()  //Promise.resolve将现有对象转为Promise对象 状态为resolve
+//Promise.reject()  //Promise.reject将现有对象转为Promise对象 状态为reject
+
+//////////////////////////////////////////////////////////////////////////////////
+//                                  Generator
+//////////////////////////////////////////////////////////////////////////////////
+//Generator函数存在next何时执行问题,更好的控制next需要co模块Generator函数 或者用async自执行
+//Generator函数的执行必须靠执行器，所以才有了co模块
+
+//Generator是一个状态机,封装了多个内部状态
+//调用next会返回{value:'',done:true};
+function* generator() {
+  yield console.log(1);
+  yield console.log(2);
+  return 'ending';
+}
+
+var hw = generator();
+hw.next();
+hw.next();
+console.log(hw.next());
+
+var myIterable = {};
+myIterable[Symbol.iterator] = function* () {
+  yield 1;
+  yield 2;
+  yield 3;
+};
+
+console.log([...myIterable]);
+
+
+function* numbers () {
+  yield 1
+  yield 2
+  return 3
+  yield 4
+}
+
+// 扩展运算符
+console.log([...numbers()]) // [1, 2]
+
+// Array.from 方法
+console.log(Array.from(numbers())) // [1, 2]
+
+// 解构赋值
+let [x, y] = numbers();
+console.log(x) // 1
+console.log(y) // 2
+
+// for...of 循环
+for (let n of numbers()) {
+  console.log(n)
+}
+// 1
+// 2
+
+
+function* foo1() {
+  yield 'a';
+  yield 'b';
+}
+
+function* bar1() {
+  yield 'x';
+  yield* foo1();
+  yield 'y';
+}
+//  yield* foo1(); 相当于 执行x  a  b y
+for (let v of bar1()){
+  console.log(v);
+}
+
+//生成一个空对象，使用call方法绑定Generator函数内部的this。空对象就是Generator函数的实例对象
+function* gen() {
+  this.a = 1;
+  yield this.b = 2;
+  yield this.c = 3;
+}
+
+function F() {
+  return gen.call(gen.prototype);
+}
+
+var f = new F();
+
+f.next();  // Object {value: 2, done: false}
+f.next();  // Object {value: 3, done: false}
+f.next();  // Object {value: undefined, done: true}
+
+f.a // 1
+f.b // 2
+f.c // 3
+
+
+/*function* run(){
+    yield aPromise();
+    yield bPromise();
+}
+
+var run = run();
+run.next();
+run.next();*/
+
+
+/*function* main() {
+  var result = yield request("http://some.url");
+  var resp = JSON.parse(result);
+    console.log(resp.value);
+}
+
+function request(url) {
+  makeAjaxCall(url, function(response){
+    it.next(response);
+  });
+}
+
+var it = main();
+it.next();*/
+
+
+function* iterEntries(obj) {
+  let keys = Object.keys(obj);
+  for (let i=0; i < keys.length; i++) {
+    let key = keys[i];
+    yield [key, obj[key]];
+  }
+}
+
+let myObj = { foo: 3, bar: 7 };
+for (let [key, value] of iterEntries(myObj)) {
+    console.log(key, value);
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//                                  async
+//////////////////////////////////////////////////////////////////////////////////
+
+//1.Generator自执行必须靠执行器(co模块),async函数自带执行器。
+//2.Generator  * 和yield
+function* gen(){
+    yield 1;
+    return;
+}
+
+let ps = new Promise(function(resolve, reject) {
+    if(true){
+        resole();
+    }else{
+        reject(new Error('失败'))
+    }
+});
+//async async await
+var gen1 = async function(){
+    await ps;
+}
+
+//3.await  后是Promise或Thunc函数属异步  如果是数组，字符串等属于同步
+//4.返回值是 Promise
+
+//只要一个await后 Promise 变reject，整个async函数都中断执行
+
+
+function promise1(){
+    return new Promise((resolve,reject) => {
+        //返回json结果
+        var data = {};
+        resolve(data);
+    });
+}
+function promise2(){
+    return new Promise((resolve,reject) => {
+        var data = {}
+        resolve(data);
+    });
+}
+
+function promise3(){
+    return new Promise((resolve,reject) => {
+        throw new Error('异常promise')
+    });
+}
+
+//await后异步操作出错等同于async函数返回的 Promise 对象被reject。
+//确认Promise结果
+async function fun1(){
+    try{
+        var val1 = await firstStep();
+        var val2 = await secondStep(val1);
+        var val3 = await thirdStep(val1, val2);
+    }catch(e){
+        throw new Error('Promise 对象被reject')
+    }
+
+    await promise1();
+}
+
+
+/*async function fun2() {
+  await promise3()
+  .catch(function (err) {
+    console.log(err);
+  };
+}*/
+
+
+fun1()
+.then(
+    v=>console.log(1),
+    e=>console.log(2)
+)
+.catch(function(e){
+    //捕获fun1中的 error
+    console.log(e);
+});
+
+//互不依赖的俩个Promise可以用Promise.all同时触发
+//let [foo, bar] = await Promise.all([promise1(), promise2()]);
+
+
+const EnumsConfig = {
+    errmap:{
+        "0019991000":"对不起！系统繁忙，请稍后重试!"
+        "0019990000":"系统异常",
+        "0019990001":"添加成功",
+        "0019990002":"添加失败",
+        "0019990003":"更新成功",
+        "0019990004":"更新失败",
+        "0019990005":"删除成功",
+        "0019990006":"删除失败",
+        "0019990007":"查询成功",
+        "0019990008":"查询失败",
+    }
+};
+
+
+console.log(EnumsConfig.errmap["001999000"])

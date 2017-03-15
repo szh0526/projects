@@ -96,26 +96,11 @@ let config = {
                  * modules相同的类名不会造成不同组件之间的污染，只对当前组件有效
                  * 从右向左开始使用，less->转为css字符串->使用style将代码放到页面style标签中。
                  */
-                {
-                    test: /\.css$/,
-                    /*loader: 'style!css?modules!postcss'*/
-                    loader: ExtractTextPlugin.extract("style-loader", "css-loader")
-                },
-                {
-                    test: /\.less$/,
-                    loader: ExtractTextPlugin.extract('style-loader', 'css-loader!postcss-loader!less-loader')
-                },
-                {
-                    test: /\.json$/,
-                    loader: "json"
-                },
+                {test: /\.css$/,loader: ExtractTextPlugin.extract("style-loader", "css-loader")},
+                {test: /\.less$/,loader: ExtractTextPlugin.extract('style-loader', 'css-loader!postcss-loader!less-loader')},
+                {test: /\.json$/,loader: "json"},
                 //图片大小小于这个限制的时候，会自动启用base64编码图片
-                {
-                    /*test: /\.(png|jpg)$/,
-                    loader: 'url?limit=40000'*/
-                    test: /\.(gif|jpg|jpeg|png|woff|svg|eot|ttf)\??.*$/,
-                    loader: 'url-loader?limit=40000&name=[path][name].[ext]'
-                }
+                {test: /\.(gif|jpg|jpeg|png|woff|svg|eot|ttf)\??.*$/,loader: 'url-loader?limit=40000&name=[path][name].[ext]'}
             ]
             /**
              * preloader 会在其他 loader 前应用

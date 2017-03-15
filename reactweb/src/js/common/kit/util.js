@@ -89,12 +89,12 @@ let concatSpreadable = (head,tail,spreadable = false) => {
 /**
  * 数组去重
  */
-let unique = (array) => [...new Set(array)];
+let unique = array => [...new Set(array)];
 
 /**
  * 数组去重
  */
-let dedupe = (array) => Array.from(new Set(array));
+let dedupe = array => Array.from(new Set(array));
 
 
 /**
@@ -143,21 +143,21 @@ let transMap = (map,fn) => new Map([...map].filter(fn));
  * @param  Map map
  * @return []
  */
-let mapToArr = (map) => [...map];
+let mapToArr = map => [...map];
 
 /**
  * 转换map对象为数组
  * @param  Map map
  * @return []
  */
-let arrToMap = (arr) => new Map(arr);
+let arrToMap = arr => new Map(arr);
 
 /**
  * Map转为对象
  * @param  Map 键都是字符串的Map
  * @return Object
  */
-let strMapToObj = (strMap) => {
+let strMapToObj = strMap => {
     let obj = Object.create(null);
     for (let [k,v] of strMap) {
         obj[k] = v;
@@ -170,7 +170,7 @@ let strMapToObj = (strMap) => {
  * @param  Object
  * @return Map
  */
-let objToStrMap = (obj) => {
+let objToStrMap = obj => {
   let strMap = new Map();
   for (let k of Object.keys(obj)) {
     strMap.set(k, obj[k]);
@@ -183,30 +183,79 @@ let objToStrMap = (obj) => {
  * @param  Object 键都是字符串的Map
  * @return Json
  */
-let strMapToJson = (strMap) => JSON.stringify(strMapToObj(strMap));
+let strMapToJson = strMap => JSON.stringify(strMapToObj(strMap));
 
 /**
  * map转数组JSON
  * @param  Map 键有非字符串
  * @return ArrayJson
  */
-let mapToArrayJson = (map) => JSON.stringify([...map]);
+let mapToArrayJson = map => JSON.stringify([...map]);
 
 /**
  * JSON转为Map
  * @param  Json
  * @return Map
  */
-let jsonToStrMap = (jsonStr) => objToStrMap(JSON.parse(jsonStr));
+let jsonToStrMap = jsonStr => objToStrMap(JSON.parse(jsonStr));
 
 /**
  * 数组JSON转为Map
  * @param  Json
  * @return Map
  */
-let arrJsonToMap = (jsonStr) => new Map(JSON.parse(jsonStr));
+let arrJsonToMap = jsonStr => new Map(JSON.parse(jsonStr));
+
+/**
+ * 异步加载图片
+ * @param  url 图片地址
+ * @return Promise对象
+ */
+let loadImageAsync = url => {
+  return new Promise((resolve, reject) => {
+      var image = new Image();
+      image.src = url;
+      image.onload  = resolve;
+      image.onerror = reject;
+  });
+}
 
 
+/**
+ * 任意对象部署Iterator接口
+ * @param  obj 对象
+ * @return 可遍历的对象
+ */
+function* iterEntries(obj) {
+  let keys = Object.keys(obj);
+  for (let i=0; i < keys.length; i++) {
+    let key = keys[i];
+    yield [key, obj[key]];
+  }
+}
+
+/**
+ * 创建自动执行generator生成器的函数
+ * @param  generator generator函数
+ * @return
+ */
+let runGenerator = generator => {
+    let it = generator();
+    //result的值为执行生成器的next方法返回的值，含有value和done两个属性，value为promise对象
+    (function(result){
+        //当result中的done取值为true时，表示该异步操作已经执行完成。
+        if(result.done) return result.value;
+        //设置promise对象的then方法
+        return result.value.then(data => go(it.next(data)),err => go(it.throw(err)))
+    }(it.next()))
+}
+
+/**
+ * 抛出异常
+ * @param  err 报错信息
+ * @return obj 抛出异常
+ */
+let errfn = err => throw new Error(err);
 
 export {
     selfish,
@@ -227,5 +276,8 @@ export {
     strMapToJson,
     mapToArrayJson,
     jsonToStrMap,
-    arrJsonToMap
+    arrJsonToMap,
+    loadImageAsync,
+    runGenerator,
+    errfn
 }

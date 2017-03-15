@@ -1,18 +1,6 @@
 let _ = require('lodash');
 
 /**
- * 默认json数据
- * @param  code     错误码
- * @param  msg      错误信息
- * @param  success  成功状态
- * @param  data     数据
- * @return json     视图模型
- */
-let defaultJson = (code = "0019990000",msg = "接口异常",success = false,data = {}) => {
-    return {success: success,errorCode:code,errorMsg:msg,data:data}
-}
-
-/**
  * 根据id获取
  * @param  vm 实体
  * @return vm         视图模型
@@ -58,7 +46,6 @@ let getAllAttraction = (attractions) => {
 
 
 export {
-    defaultJson,
     getAllAttraction,
     getAttraction
 }

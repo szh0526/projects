@@ -20,9 +20,10 @@ let gulp = require("gulp"),
  * 单个任务测试
  */
 gulp.task("buildserver", webpackDevServer)
-    /**
-     * 单个任务测试
-     */
+
+/**
+ * 单个任务测试
+ */
 gulp.task("test", webpackDll)
 
 /**

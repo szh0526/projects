@@ -5,6 +5,7 @@
  * Model ： 由Schema发布生成的模型，具有抽象属性和行为的数据库操作对
  * Entity ： 由Model创建的实体，他的操作也会影响数据库
  */
+import BaseClass from './base/baseClass';
 let promise = require('bluebird'); //promise的具体实现
 let mongoose = require('mongoose');
 mongoose.Promise = promise;
@@ -36,31 +37,19 @@ VacationSchema.methods.getDisplayPrice = function(){
 //创建模型 model第一个参数是数据库表名
 var VacationModel = mongoose.model('Vacations', VacationSchema);
 
-let getAll = () => {
-    return VacationModel.find({});
-};
+class Vacation extends BaseClass{
+    constructor(model){
+        super(model);
+    }
 
-let findById = (id) => {
-    return VacationModel.find({_id: id});
-};
+    fun1(){
+        console.log(1)
+    }
+    fun2(){
+        console.log(2)
+    }
+}
 
-let insert = (model) => {
-    return new VacationModel(model).save();
-};
+let vacation = new Vacation(VacationModel);
 
-let update = (wherestr, model) => {
-    return VacationModel.update(wherestr, model);
-};
-
-let remove = (id) => {
-    return VacationModel.remove({_id: id});
-};
-
-
-export {
-  findById as find,
-  getAll,
-  insert,
-  update,
-  remove
-};
+export default vacation;

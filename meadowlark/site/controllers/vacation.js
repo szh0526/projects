@@ -3,8 +3,8 @@
  * 负责处理用户交互，并根据用户交互选择恰当的视图来显示
  * 控制器和路由器之间唯一的区别是控制器一般会把相关功能归组
  */
-import {getAll,find,insert,update,remove} from '../models/vacation.js';
-import {defaultJson,getAllVacation,getVacation} from '../viewModels/vacation.js';
+import model from '../models/vacation.js';
+import {getAllVacation,getVacation} from '../viewModels/vacation.js';
 
 export default {
     registerRoutes(app){
@@ -21,16 +21,12 @@ export default {
         return res.redirect(303, '/vacations');
     },
     getAllVacations(req, res, next){
-        getAll()
-        .then(function(result){
-            res.render('vacations', getAllVacation(result,req.session.currency));
-        }).catch(function(err){
-            console.log(err);
-            next(); // 将这个传给404 处理器
-        });
+        model.getAll()
+        .then(result => res.render('vacations', getAllVacation(result,req.session.currency)))
+        .catch(err => next());
     },
     insertVacation(req, res, next){
-        insert({
+        model.insert({
             name: '测试' + (new Date).getTime(),
             slug: '测试' + (new Date).getTime(),
             category: '测试' + (new Date).getTime(),
@@ -43,36 +39,43 @@ export default {
             available: true,
             packagesSold: 0,
             updateId: (new Date).getTime()
-        }).then(function(result){
-            res.json(defaultJson("","添加成功",true,result));
-        }).catch(function(err){
-            res.json(defaultJson("0019990001","添加失败"));
-        });
+        })
+        .then(result => res.json(model.defaultJson("0019990001",true,result)))
+        .catch(err => res.json(model.defaultJson("0019990002")));
     },
     updateVacation(req, res, next){
-        update({_id: "58b6644669b14bb081d11d82"},{available: false})
-        .then(function(result){
-            res.json(defaultJson("","更新成功",true,result));
-        }).catch(function(err){
-            res.json(defaultJson("0019990002","更新失败"));
-        });
+        model.update({_id: "58b6644669b14bb081d11d82"},{available: false})
+        .then(result => res.json(model.defaultJson("0019990003",true,result)))
+        .catch(err => res.json(model.defaultJson("0019990004")));
     },
     delVacation(req, res, next){
-        var id = "58b6642469b14bb081d11d7f";
-        find(id)
-        .then(function(result){
+        let id = "58b6644669b14bb081d11d82";
+
+        let errfn = err => throw new Error(err);
+
+        model.find(id)
+        .then(result => {
+            return result;
+        },errfn)
+        .then(result => {
             if(result && result.length > 0){
-                remove(id)
-                .then(function(result){
-                    res.json(defaultJson("","删除成功",true,result));
-                }).catch(function(err){
-                    res.json(defaultJson("0019990003","删除失败"));
-                });
-            }else{
-                res.json(defaultJson("0019990004","该记录不存在"));
+                return model.remove(result[0]["_id"]);
             }
-        }).catch(function(err){
-            throw new Error('服务器异常:' + err);
+            return;
+        },errfn)
+        .then(result => {
+            if(!result || typeof(result) === 'undefined'){
+                res.json(model.defaultJson("0019990007"));
+                return;
+            }
+            if(result.result && result.result.ok == 1){
+                res.json(model.defaultJson("0019990005"));
+            }else{
+                res.json(model.defaultJson("0019990006"));
+            }
+        },errfn)
+        .catch(err => {
+            res.json(model.defaultJson())
         });
     }
 }

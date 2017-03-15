@@ -3,8 +3,8 @@
  * 负责处理用户交互，并根据用户交互选择恰当的视图来显示
  * 控制器和路由器之间唯一的区别是控制器一般会把相关功能归组
  */
-import {getAll,find,insert,update,remove} from '../models/attraction.js';
-import {defaultJson,getAllAttraction,getAttraction} from '../viewModels/attraction.js';
+import model from '../models/attraction.js';
+import {getAllAttraction,getAttraction} from '../viewModels/attraction.js';
 
 export default {
     registerRoutes(app) {
@@ -17,29 +17,21 @@ export default {
         app.post('/api/attraction/delete/:id', _self.delAttraction);
     },
     getAllAttractions(req, res, next){
-        getAll()
-        .then(function(result){
-            res.render('attractions/search', getAllAttraction(result));
-        }).catch(function(err){
-            console.log(err);
-            next(); // 将这个传给404 处理器
-        })
+        model.getAll()
+        .then(result => res.render('attractions/search', getAllAttraction(result)))
+        .catch(err => next());
     },
     findAttraction(req, res, next){
         if(!req.params.id){
             res.render('attractions/operate', {});
         }else{
-            find(req.params.id)
-            .then(function(result){
-                res.render('attractions/operate', getAttraction(result));
-            }).catch(function(err){
-                console.log(err);
-                next(); // 将这个传给404 处理器
-            });
+            model.find(req.params.id)
+            .then(result => res.render('attractions/operate', getAttraction(result)))
+            .catch(err => next());
         }
     },
     insertAttraction(req, res, next){
-        insert({
+        model.insert({
             name: req.body.name,
             description: req.body.description,
             location: {
@@ -54,14 +46,12 @@ export default {
             },
             updateId: (new Date).getTime(),
             approved: false
-        }).then(function(result){
-            res.json(defaultJson("","添加成功",true,result));
-        }).catch(function(err){
-            res.json(defaultJson("0019990001","添加失败"));
-        });
+        })
+        .then(result => res.json(model.defaultJson("0019990001",true,result)))
+        .catch(err => res.json(model.defaultJson("0019990002")));
     },
     updateAttraction(req, res, next){
-        update({_id: req.body.id},
+        model.update({_id: req.body.id},
             {location: {
                 lat: req.body.lat
                 , lng: req.body.lng
@@ -74,28 +64,34 @@ export default {
                 email: req.body.email,
                 date: new Date()
             }
-        }).then(function(result){
-            res.json(defaultJson("","更新成功",true,result));
-        }).catch(function(err){
-            res.json(defaultJson("0019990002","更新失败"));
-        });
+        })
+        .then(result => res.json(model.defaultJson("0019990003",true,result)))
+        .catch(err => res.json(model.defaultJson("0019990004")));
     },
     delAttraction(req, res, next){
-        var id = req.params.id;
-        find(id)
-        .then(function(result){
-            if(result && result.length > 0){
-                remove(id)
-                .then(function(result){
-                    res.json(defaultJson("","删除成功",true,result));
-                }).catch(function(err){
-                    res.json(defaultJson("0019990003","删除失败"));
-                });
-            }else{
-                res.json(defaultJson("0019990004","该记录不存在"));
-            }
-        }).catch(function(err){
-            throw new Error('服务器异常:' + err);
+        let id = req.params.id;
+
+        function createPromise(promiseObj,promiseCallback,callback){
+            return new Promise((resolve,reject) => {
+                promiseObj.then(result => {
+                    if(promiseCallback){
+                        resolve(promiseCallback)
+                    }else{
+                        resolve(result)
+                    }
+                },err => reject(err));
+            });
+        }
+
+        let removePromise = createPromise(model.remove(id));
+        let findPromise = createPromise(model.find(id),removePromise);
+
+        findPromise
+        .then(data => {
+            res.json(model.defaultJson("0019990005",true,data.result))
+        })
+        .catch(err => {
+            res.json(model.defaultJson("0019990006"))
         });
     }
 }
