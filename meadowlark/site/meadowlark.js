@@ -1,12 +1,12 @@
 import * as middlewares from './routes/middlewares.js';
 import initRoutes from './routes/routes.js';
 let express = require('express')
-,http = require('http')
-//,https = require('https'); //与http不能共存
-,fs = require('fs')
-,app = express()
-,server = null//当前node服务
-,rootPath = __dirname
+    ,http = require('http')
+    //,https = require('https'); //与http不能共存
+    ,fs = require('fs')
+    ,app = express()
+    ,server = null//当前node服务
+    ,rootPath = __dirname;
 
 
 middlewares.defaultSettingsHandler(app);

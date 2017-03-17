@@ -227,10 +227,8 @@ let loadImageAsync = url => {
  * @return 可遍历的对象
  */
 function* iterEntries(obj) {
-  let keys = Object.keys(obj);
-  for (let i=0; i < keys.length; i++) {
-    let key = keys[i];
-    yield [key, obj[key]];
+  for (let [key, value] of Object.entries(obj)) {
+    yield [key, value];
   }
 }
 
@@ -255,7 +253,7 @@ let runGenerator = generator => {
  * @param  err 报错信息
  * @return obj 抛出异常
  */
-let errfn = err => throw new Error(err);
+let errfn = err => { throw new Error(err) }
 
 export {
     selfish,

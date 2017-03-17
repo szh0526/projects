@@ -51,7 +51,9 @@ export default {
     delVacation(req, res, next){
         let id = "58b6644669b14bb081d11d82";
 
-        let errfn = err => throw new Error(err);
+        let errfn = err => {
+            throw new Error(err);
+        }
 
         model.find(id)
         .then(result => {
