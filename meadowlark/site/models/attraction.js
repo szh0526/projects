@@ -6,9 +6,7 @@
  * Entity ： 由Model创建的实体，他的操作也会影响数据库
  */
 import BaseClass from './base/baseClass';
-let promise = require('bluebird'); //promise的具体实现
 let mongoose = require('mongoose');
-mongoose.Promise = promise;
 
 //定义模式
 let AttractionSchema = mongoose.Schema({

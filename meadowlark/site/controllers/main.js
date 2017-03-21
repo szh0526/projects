@@ -12,10 +12,32 @@ export default {
         app.get('/custom-layout', _self.customLayout);
         app.get('/error', _self.error);
         app.get('/epic-fail', _self.serverFail);
+        app.get('/api/ajson',_self.aJson);
+        app.post('/api/bjson', _self.bJson);
     },
     home(req, res, next) {
         //模板引擎默认状态码200
         res.render('home');
+    },
+    aJson(req,res,next){
+        console.log(req.path);
+        console.log(req.params);
+        res.json({
+            "success":false,
+            "errCode":"022",
+            "errMsg":"get接口404",
+            "data":null
+        })
+    },
+    bJson(req,res,next){
+        console.log(req.path);
+        console.log(req.body);
+        res.json({
+            "success":false,
+            "errCode":"011",
+            "errMsg":"post接口404",
+            "data":null
+        })
     },
     //如多个站点about/123/聪聪 /cart/:site
     about(req, res, next) {

@@ -3,7 +3,7 @@
     "errCode":"0",
     "errMsg":"请求成功",
     "data":{
-        a:"getAll",
+        a:1,
         b:2
     }
 }

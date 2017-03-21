@@ -4,6 +4,7 @@ let express = require('express')
     ,http = require('http')
     //,https = require('https'); //与http不能共存
     ,fs = require('fs')
+    ,bodyparser = require('body-parser')
     ,app = express()
     ,server = null//当前node服务
     ,rootPath = __dirname;
@@ -12,8 +13,21 @@ let express = require('express')
 middlewares.defaultSettingsHandler(app);
 app.use(middlewares.staticshHandler(rootPath + '/public'));
 app.use(middlewares.staticshHandler(rootPath + '/lib'));
+//设置跨域访问
+var allowCrossDomain = function(req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8089');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,Content-Type');
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    if (req.method == 'OPTIONS')
+        res.send(200); //让options请求快速返回
+    else next();
+};
+/*app.all("/api/*",allowCrossDomain);*/
 app.use("/api",middlewares.allowApiCorsHandler());
-app.use(middlewares.bodyParserHandler());
+app.use(bodyparser.json()); // for parsing application/json
+app.use(bodyparser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+/*app.use(middlewares.bodyParserHandler());*/
 app.use(middlewares.cookieParserHandler());
 app.use(middlewares.expressSessionHandler());
 app.use(middlewares.commonHandler(app));

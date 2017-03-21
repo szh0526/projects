@@ -163,12 +163,13 @@ function webpackDevServer(callback) {
         hot: true,
         progress: true,
         // Make connection between webpack-dev-server and its runtime set inline: true
-        headers: { "Access-Control-Allow-Origin": "*" },
+        headers: {'Access-Control-Allow-Origin': "*"},
         //代理mockServer服务
         proxy: {
             '/api/*': {
                 target: staticCfg.mockHost,
-                secure: false
+                secure: false,
+                changeOrigin: true
             }
         },
         /*
@@ -199,6 +200,12 @@ function startMockServer() {
             },
             host: "localhost",
             port: 9999,
+            //通过代理解决跨域。浏览器访问跨域接口有安全策略，proxy不通过浏览器所以没有限制
+            /*proxies: [{
+                    source: '/api/*'
+                    , target: 'http://localhost:9999/api'
+                    , options: {headers:{'Access-Control-Allow-Origin': "http://localhost:8089"}}
+                }],*/
             //拦截ajax请求并处理 需要在devserver中配置proxy代理
             middleware: function(req, res, next) {
                 var urlObj = url.parse(req.url, true),

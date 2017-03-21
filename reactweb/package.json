@@ -14,7 +14,6 @@
     "server": "http-server -p 10000 dist/",
     "buildserver": "npm run build && npm run server",
     "startPrd": "SET NODE_ENV=production&& npm run buildDll && npm run buildPrd",
-    "buildPrd": "webpack --progress --colors --config webpack.production.config.js",
     "mockserver": "json-server mock/db.json --routes mock/routes.json --port 9999"
   },
   "author": "Super 'Kakarot' Saiyan",
@@ -66,7 +65,12 @@
     "webpack-stream": "^3.2.0"
   },
   "dependencies": {
-    "node-fetch": "^1.6.3",
+    "es5-shim": "^4.5.9",
+    "es6-promise": "^4.1.0",
+    "fetch": "^1.1.0",
+    "fetch-ie8": "^1.5.0",
+    "fetch-jsonp": "^1.0.6",
+    "isomorphic-fetch": "^2.2.1",
     "react": "^15.4.1",
     "react-dom": "^15.4.1",
     "react-router": "^3.0.1"

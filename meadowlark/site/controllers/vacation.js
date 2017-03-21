@@ -60,16 +60,9 @@ export default {
             return result;
         },errfn)
         .then(result => {
-            if(result && result.length > 0){
-                return model.remove(result[0]["_id"]);
-            }
-            return;
+            return model.remove(result[0]["_id"]);
         },errfn)
         .then(result => {
-            if(!result || typeof(result) === 'undefined'){
-                res.json(model.defaultJson("0019990007"));
-                return;
-            }
             if(result.result && result.result.ok == 1){
                 res.json(model.defaultJson("0019990005"));
             }else{
@@ -79,5 +72,16 @@ export default {
         .catch(err => {
             res.json(model.defaultJson())
         });
+
+        //async是自执行， await后面跟Promise等待 Promise resolve() 才会向下执行，如果被 reject() 或抛出异常则会被外面的 try...catch 捕获
+        // let asyncfn = async function(){
+        //     try {
+        //         let response = await fetch(url);
+        //         let data = await response.json();//response.json()需要.then才能接收data
+        //         console.log(data);
+        //     } catch(e) {
+        //         console.log("Oops, error", e);
+        //     }
+        // }
     }
 }

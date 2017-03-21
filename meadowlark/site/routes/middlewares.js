@@ -53,12 +53,14 @@ let defaultSettingsHandler = (app) => {
 
     //return undefined;
 };
+
 /**
  * 允许跨域资源共享 只有在api接口时才允许跨域
  */
 let allowApiCorsHandler = () => {
-   return cors();
+   return cors({credentials: false});
 };
+
 /**
  * 初始化mongodb
  */
