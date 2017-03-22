@@ -12,32 +12,65 @@ export default {
         app.get('/custom-layout', _self.customLayout);
         app.get('/error', _self.error);
         app.get('/epic-fail', _self.serverFail);
-        app.get('/api/ajson',_self.aJson);
-        app.post('/api/bjson', _self.bJson);
+        app.get('/api/getJson',_self.getJson);
+        app.post('/api/postJson', _self.postJson);
+        app.get('/api/getJsonp', _self.getJsonp);
+        app.post('/api/postJsonp', _self.postJsonp);
     },
     home(req, res, next) {
         //模板引擎默认状态码200
         res.render('home');
     },
-    aJson(req,res,next){
+    getJson(req,res,next){
         console.log(req.path);
-        console.log(req.params);
+        console.log(req.query);
         res.json({
             "success":false,
-            "errCode":"022",
-            "errMsg":"get接口404",
-            "data":null
+            "errCode":"001",
+            "errMsg":"getJson接口404",
+            "data":{
+                a:req.query.a,
+                b:req.query.b
+            }
         })
     },
-    bJson(req,res,next){
+    postJson(req,res,next){
         console.log(req.path);
         console.log(req.body);
         res.json({
             "success":false,
-            "errCode":"011",
-            "errMsg":"post接口404",
-            "data":null
+            "errCode":"002",
+            "errMsg":"postJson接口404",
+            "data":req.body
         })
+    },
+    getJsonp(req,res,next){
+        console.log(req.path);
+        console.log(req.query);
+        var data =JSON.stringify({
+            "success":false,
+            "errCode":"003",
+            "errMsg":"getJsonp接口404",
+            "data":{
+                a:req.query.a,
+                b:req.query.b
+            }
+        });
+        res.setHeader('Content-type', 'application/javascript');
+        res.end(req.query.callback + '(' + data + ')');
+    },
+    postJsonp(req,res,next){
+        //fetch-jsonp目前不支持post
+        console.log(req.path);
+        console.log(req.body);
+        var data =JSON.stringify({
+            "success":false,
+            "errCode":"004",
+            "errMsg":"postJsonp接口404",
+            "data":req.body
+        });
+        res.setHeader('Content-type', 'application/javascript');
+        res.end(req.query.callback + '(' + data + ')');
     },
     //如多个站点about/123/聪聪 /cart/:site
     about(req, res, next) {

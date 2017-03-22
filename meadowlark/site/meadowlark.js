@@ -4,30 +4,31 @@ let express = require('express')
     ,http = require('http')
     //,https = require('https'); //与http不能共存
     ,fs = require('fs')
-    ,bodyparser = require('body-parser')
+    ,bodyParser = require('body-parser')
     ,app = express()
     ,server = null//当前node服务
     ,rootPath = __dirname;
 
-
 middlewares.defaultSettingsHandler(app);
 app.use(middlewares.staticshHandler(rootPath + '/public'));
 app.use(middlewares.staticshHandler(rootPath + '/lib'));
-//设置跨域访问
+//设置跨域访问 如果采用fetch则启动
 var allowCrossDomain = function(req, res, next) {
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8089');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, Content-Type, Ayuthorization, X-Requested-With');
+    res.setHeader("Access-Control-Max-Age", "3600");
     res.setHeader('Access-Control-Allow-Credentials', true);
     if (req.method == 'OPTIONS')
         res.send(200); //让options请求快速返回
     else next();
 };
-/*app.all("/api/*",allowCrossDomain);*/
-app.use("/api",middlewares.allowApiCorsHandler());
-app.use(bodyparser.json()); // for parsing application/json
-app.use(bodyparser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
-/*app.use(middlewares.bodyParserHandler());*/
+app.all("/api/*",allowCrossDomain);
+//如果采用fetch-jsonp则启动
+/*app.use("/api",middlewares.allowApiCorsHandler());*/
+app.use(middlewares.bodyParserHandler());
+app.use(bodyParser.json()); // 解析JSON 编码的请求体。
+app.use(bodyParser.urlencoded({ extended: true }));// for parsing application/x-www-form-urlencoded
 app.use(middlewares.cookieParserHandler());
 app.use(middlewares.expressSessionHandler());
 app.use(middlewares.commonHandler(app));
@@ -38,8 +39,6 @@ app.use(middlewares.notCatchHandler(server));
 app.use(middlewares.notFoundHandler());
 app.use(middlewares.serverErrHandler());
 middlewares.initMongoDbHandler(app,rootPath);
-
-//mongodb数据库 用户
 
 /**
  * Nginx 高性能的代理服务器 适用于生产环境

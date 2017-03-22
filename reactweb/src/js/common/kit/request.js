@@ -24,22 +24,29 @@ export default class FetchApi {
 
     /**
     * 同步异步请求方法
+    * 需要开启node服务端express allowCrossDomain中间件
     * @param  url 请求地址
     * @return fetch Promise对象
     */
-    request(url, options = {}){
+    req(url, options = {}){
         options = this.transOptions(options);
         return fetch(url,options).then(this.checkStatus,this.error).then(this.getJson,this.error);
     }
 
     /**
-    * 跨域异步请求 只支持GET
+    * 跨域异步请求 目前只支持GET 不支持POST
+    * 需要开启node服务端express allowApiCorsHandler中间件
     * 服务端response.setHeader("Access-Control-Allow-Origin", "*");
     * @param  url  请求地址
-    * @param  options timeout:超时时间,默认5秒 jsonpCallback:callbackname 默认'jsonp_callback'
+    * @param  options: {
+    *    timeout:超时时间,默认5秒
+    *    //默认callback
+    *    //callback:'jsonp_1490155472674_736',
+    *    //jsonpCallback:'jsonp_callback'
+    * }
     * @return fetch Promise对象
     */
-    requestJsonp(url){
+    reqp(url){
         return fetchJsonp(url).then(this.checkStatus,this.error).then(this.getJson,this.error);
     }
 
@@ -48,7 +55,7 @@ export default class FetchApi {
     * @param options = {
     *   method - 使用的HTTP动词，GET, POST, PUT, DELETE, HEAD
     *   url - 请求地址，URL of the request
-    *   headers - 关联的Header对象
+    *   headers - 关联的Header对象 contentType有3种：application/x-www-form-urlencoded(默认值)、multipart/form-data、text/plain
     *   referrer - referrer
     *   mode - 请求的模式，主要用于跨域设置，cors, no-cors, same-origin
     *   credentials - 是否发送Cookie omit, same-origin
@@ -64,12 +71,20 @@ export default class FetchApi {
             mode: 'cors',
             method: 'GET',
             headers: {
-                'Accept': 'application/json, text/javascript, */*; q=0.01',
+                 //解析互联网媒体类型,是处理表单和AJAX 请求最常用的方式
                 'Content-Type': "application/x-www-form-urlencoded; charset=utf-8"
             },
             cache: 'default'
         };
         opt = Object.assign(opt,options);
+
+        if(opt.method.toUpperCase() == "POST"){
+            opt.headers['Content-Type'] = 'application/json; charset=utf-8'
+        }
+
+        if(opt.body){
+            opt.body = JSON.stringify(opt.body);
+        }
         return opt;
     }
 
@@ -123,28 +138,12 @@ export default class FetchApi {
 }
 
 
-/**
- * fetch支持超时timeout处理
- * @param  url  请求地址
- * @param  options
- * @return fetch Promise对象
- */
-/*var oldFetchfn = fetch; //拦截原始的fetch方法
-window.fetch = function(input, opts){//定义新的fetch方法，封装原有的fetch方法
-    var fetchPromise = oldFetchfn(input, opts);
-    var timeoutPromise = new Promise(function(resolve, reject){
-        setTimeout(()=>{
-            reject(new Error("fetch timeout"))
-        }, opts.timeout)
-    });
-    //Promise.race方法接受promise[]，表示多个promise任何一个先改变状态，race方法返回的promise实例状态就跟着改变
-    return Promise.race([fetchPromise, timeoutPromise]);
-}*/
-
-/*let geturl = "http://127.0.0.1:3000/api/aJson?a=1&b=2";
-let posturl = "http://127.0.0.1:3000/api/bJson";
-let htmlurl = "http://localhost:8089/test.html";
+/*let postJson = "http://127.0.0.1:3000/api/postJson";
+let getJson = "http://127.0.0.1:3000/api/getJson?a=1&b=2";
+let getJsonp = "http://localhost:3000/api/getJsonp?a=1&b=2";
+let postJsonp = "http://localhost:3000/api/postJsonp";
 let jsonpurl = "http://localhost:9999/api/index/getJsonp";
+let htmlurl = "http://localhost:8089/test.html";
 let f = new FetchApi();
 let getData = data => {
     console.log(data);
@@ -152,7 +151,9 @@ let getData = data => {
 };
 let errorfn = err => {throw new Error(err)};
 let opts = {method: 'POST',body:{name: '试打算打',login: 'hubot'}};
-let data1 = f.request(posturl,opts).then(getData).catch(errorfn);
-let data2 = f.request(geturl).then(getData).catch(errorfn);
-let data4 = f.requestJsonp(jsonpurl).then(getData).catch(errorfn);
-let data3 = f.request(htmlurl).then(getData).catch(errorfn);*/
+let data1 = f.req(postJson,opts).then(getData).catch(errorfn);
+let data2 = f.req(getJson).then(getData).catch(errorfn);
+//let data3 = f.reqp(getJsonp).then(getData).catch(errorfn);
+//let data4 = f.reqp(postJsonp).then(getData).catch(errorfn);//目前不支持post
+let data5 = f.reqp(jsonpurl).then(getData).catch(errorfn);
+let data6 = f.req(htmlurl).then(getData).catch(errorfn);*/
