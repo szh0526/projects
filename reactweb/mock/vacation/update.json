@@ -1,0 +1,9 @@
+{
+    "success":true,
+    "errCode":"0",
+    "errMsg":"请求成功",
+    "data":{
+        a:"insert",
+        b:2
+    }
+}

@@ -1,15 +1,23 @@
-# reactweb
+![](http://i.imgur.com/260Z60u.png)
 
-> ok
-- test1
-- test2
+##介绍
+- 1
+- 2
+- 3
 
-``
-index
-    img   -- 图片
-    js    -- 相关js
-    css   -- css
-    test  -- 一些测试
-    tools -- 开发环境工具
-    index.entry.js -- 入口文件
-``
+##安装
+- react: `npm install react --save`
+- react-dom: `npm install react-dom --save`
+- react-router: `npm install react-router --save`
+- webpack: `npm install webpack --save`
+- gulp: `npm install gulp --save`
+- babel: `npm install babel-core --save`
+- es6:  `npm install babel-preset-es2015 --save`
+- isomorphic-fetch: `npm install isomorphic-fetch --save`
+- 或npm init
+
+##启动
+	npm start
+
+##技术栈
+从大飒飒打

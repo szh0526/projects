@@ -66,7 +66,7 @@ export default class FetchApi {
     * @returns options 配置
     */
     transOptions(options){
-        let opt = {
+        let defaultOptions = {
             credentials: 'include',
             mode: 'cors',
             method: 'GET',
@@ -76,7 +76,7 @@ export default class FetchApi {
             },
             cache: 'default'
         };
-        opt = Object.assign(opt,options);
+        let opt = Object.assign(defaultOptions,options);
 
         if(opt.method.toUpperCase() == "POST"){
             opt.headers['Content-Type'] = 'application/json; charset=utf-8'
@@ -112,7 +112,7 @@ export default class FetchApi {
         if(response.ok){
             return response;
         }
-        throw new Error(response.statusText);
+        this.error(response.statusText);
     }
 
     /**
@@ -122,17 +122,18 @@ export default class FetchApi {
     */
     getJson(response){
         let type = response.headers ? response.headers.get('Content-Type').split(";")[0] : 'application/json';
+        let result;
         switch (type) {
             case 'text/html':
-                return response.text();
+                result = response.text();
                 break;
             case 'application/json':
-                return response.json();
+                result = response.json();
                 break;
             default:
-                return;
                 break;
         }
+        return result;
     }
 
 }
@@ -142,8 +143,8 @@ export default class FetchApi {
 let getJson = "http://127.0.0.1:3000/api/getJson?a=1&b=2";
 let getJsonp = "http://localhost:3000/api/getJsonp?a=1&b=2";
 let postJsonp = "http://localhost:3000/api/postJsonp";
-let jsonpurl = "http://localhost:9999/api/index/getJsonp";
-let htmlurl = "http://localhost:8089/test.html";
+let jsonpurl = "http://localhost:9999/api/vacation/update";
+let htmlurl = "http://localhost:8089/views/index.html";
 let f = new FetchApi();
 let getData = data => {
     console.log(data);

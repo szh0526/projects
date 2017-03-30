@@ -7,10 +7,15 @@ const bar = Symbol('bar');
 const snaf = Symbol('snaf');
 let Point =new class{
   constructor(name) {
+    this.func = this.func.bind(this);
     this.name = name;
     this.printName = (name = 'there') => {
         this.print(`Hello ${name}`);
     };
+  }
+
+  async func(ctx){
+      console.log(1)
   }
 
   print(text) {

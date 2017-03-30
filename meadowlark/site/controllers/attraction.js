@@ -70,7 +70,7 @@ export default {
     },
     delAttraction(req, res, next){
         let id = req.params.id;
-
+        //多个promise之间有依赖关系的方案一
         function createPromise(promiseObj,promiseCallback,callback){
             return new Promise((resolve,reject) => {
                 promiseObj.then(result => {
@@ -93,5 +93,27 @@ export default {
         .catch(err => {
             res.json(model.defaultJson("0019990006"))
         });
+
+
+        /*//多个promise之间有依赖关系的方案二
+        let findPromise1 = () => {
+            return new Promise((resolve,reject) => {
+                 model.find(id)
+                 .then(response => resolve(response)},e => reject(e))
+                 .catch(e => reject(e))
+            })
+        }
+
+        let removePromise2 = response => {
+            //一些业务逻辑
+            if(response){
+                model.remove(id)
+                .then(data => res.json(model.defaultJson("0019990005",true,data.result)))
+                .catch(err => res.json(model.defaultJson("0019990006")));
+            }
+            res.json(model.defaultJson("0019990006"))
+        }
+
+        findPromise1().then(removePromise2);*/
     }
 }
