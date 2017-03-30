@@ -18,7 +18,4 @@
 #技术栈
 node + express + pm2 + mongoose + babel + es6 + Nginx
 
-前后端分离.node做api中间层
-最简单的情况就是node做个api代理，然后顺便可以简单的套个首屏页面。当然加这一层会给前端几乎无限的可能性。
-前后端分离，express做数据api层和首屏渲染模板，用devserver起静态服务，模板中调用相应js
-MVC 三层  实现api接口  数据库采用 mongodb数据引擎mongoose
+前后端分离 node  MVC实现api接口,数据库采用mongodb引擎mongoose
