@@ -1,11 +1,11 @@
 ![](http://i.imgur.com/260Z60u.png)
 
-##介绍
+#介绍
 - 1
 - 2
 - 3
 
-##安装
+#安装
 - react: `npm install react --save`
 - react-dom: `npm install react-dom --save`
 - react-router: `npm install react-router --save`
@@ -16,8 +16,8 @@
 - isomorphic-fetch: `npm install isomorphic-fetch --save`
 - 或npm init
 
-##启动
+#启动
 	npm start
 
-##技术栈
+#技术栈
 从大飒飒打
