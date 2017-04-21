@@ -1,21 +1,15 @@
 ![](http://i.imgur.com/wB4Sp9L.png)
-#node express#
-#介绍
-- 1
-- 2
-- 3
+
+#项目说明
+node express 练习项目
 
 #安装
-- express: `npm install express --save`
-- mongoose: `npm install mongoose --save`
-- babel: `npm install babel --save`
-- es6: `npm install babel-preset-es2015 --save`
-- 或npm init
+npm init
 
 #启动
-	npm start
+npm start
+访问http://localhost:3000/
 
 #技术栈
 node + express + pm2 + mongoose + babel + es6 + Nginx
-
-前后端分离 node  MVC实现api接口,数据库采用mongodb引擎mongoose
+前后端分离node MVC实现api接口,数据库采用mongodb引擎mongoose
