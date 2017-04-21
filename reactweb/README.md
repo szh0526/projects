@@ -1,23 +1,31 @@
 ![](http://i.imgur.com/260Z60u.png)
 
-#介绍
-- 1
-- 2
-- 3
+#项目说明
+react 练习项目
+
+#环境
+gulp 自动化任务
+webpack 打包文件
 
 #安装
-- react: `npm install react --save`
-- react-dom: `npm install react-dom --save`
-- react-router: `npm install react-router --save`
-- webpack: `npm install webpack --save`
-- gulp: `npm install gulp --save`
-- babel: `npm install babel-core --save`
-- es6:  `npm install babel-preset-es2015 --save`
-- isomorphic-fetch: `npm install isomorphic-fetch --save`
-- 或npm init
+npm init
+
+#打包
+gulp build
 
 #启动
-	npm start
+npm start
+访问http://localhost:8089/
 
-#技术栈
-测试文档
+#打包文件说明
+├── dist                         //开发环境构建文件夹
+│   └── css                      //样式
+│       └── index                //index 页面样式目录
+│           └── index.css        //index 页面样式入口
+│   └── images                   //图片
+│   └── js                       //js文件
+│       └── common               //公共js
+│       └── index                //入口js
+│   └── views                    //views 目录
+│       ├── index.html
+│       └── page2.html
